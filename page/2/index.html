@@ -274,6 +274,257 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-数据库三范式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/07/数据库三范式/" class="article-date">
+      <time datetime="2017-04-06T16:00:00.000Z" itemprop="datePublished">2017-04-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/07/数据库三范式/">数据库三范式</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="数据库三范式"><a href="#数据库三范式" class="headerlink" title="数据库三范式"></a>数据库三范式</h1><h2 id="范式"><a href="#范式" class="headerlink" title="范式"></a>范式</h2><p>关系模型<code>R(U,F)</code>,<code>U</code>为属性，<code>F</code>为属性U上的一组数据依赖。<br>关系数据库的关系是要满足一定要求的，满足不同程度要求的为不同范式。</p>
+<ul>
+<li><p>第一范式 (1NF)<br>定义：如果关系模式 R 的每个关系 r 的属性都是不可分的数据项，那么就称 R 是第一范式的模式。<br>简单的说，每一个属性都是原子项，不可分割。</p>
+<p>1NF 是关系模式应具备的最起码的条件，如果数据库设计不能满足第一范式，就不称为关系型数据库。关系数据库设计研究的关系规范化是在 1NF 之上进行的。例如 (学生信息表)：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>学生编号</th>
+<th>姓名</th>
+<th>性别</th>
+<th>联系方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20080901</td>
+<td>张三</td>
+<td>男</td>
+<td>email:zs@126.com,phone:88886666</td>
+</tr>
+<tr>
+<td>20080902</td>
+<td>李四</td>
+<td>女</td>
+<td>email:ls@126.com,phone:66668888</td>
+</tr>
+</tbody>
+</table>
+<p>以上的表就不符合，第一范式：联系方式字段可以再分，所以变更为正确的是：</p>
+<table>
+<thead>
+<tr>
+<th>学生编号</th>
+<th>姓名</th>
+<th>性别</th>
+<th>电子邮件</th>
+<th>电话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20080901</td>
+<td>张三</td>
+<td>男</td>
+<td>zs@126.com</td>
+<td>88886666</td>
+</tr>
+<tr>
+<td>20080902</td>
+<td>李四</td>
+<td>女</td>
+<td>ls@126.com</td>
+<td>66668888</td>
+</tr>
+</tbody>
+</table>
+<p>第二范式（2NF）<br>定义：如果关系模式 R 是 1NF，且每个非主属性完全函数依赖于候选键，那么就称 R 是第二范式。<br>简单的说，第二范式要满足以下的条件：首先要满足第一范式，其次每个非主属性要完全函数依赖与候选键，或者是主键。也就是说，每个非主属性是由整个主键函数决定的，而不能由主键的一部分来决定。<br>例如 (学生选课表):</p>
+<table>
+<thead>
+<tr>
+<th>学生</th>
+<th>课程</th>
+<th>教师</th>
+<th>教师职称</th>
+<th>教材</th>
+<th>教室</th>
+<th>上课时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>李四</td>
+<td>Spring</td>
+<td>张老师</td>
+<td>java 讲师</td>
+<td>《Spring 深入浅出》</td>
+<td>301</td>
+<td>08:00</td>
+</tr>
+<tr>
+<td>张三</td>
+<td>Struts</td>
+<td>杨老师</td>
+<td>java 讲师</td>
+<td>《Struts in Action》</td>
+<td>302</td>
+<td>13:30</td>
+</tr>
+</tbody>
+</table>
+<p>这里通过（学生，课程）可以确定教师、教师职称，教材，教室和上课时间，所以可以把（学生，课程）作为主键。但是，教材并不完全依赖于（学生，课程），只拿出课程就可以确定教材，因为一个课程，一定指定了某个教材。这就叫不完全依赖，或者部分依赖。出现这种情况，就不满足第二范式。<br>修改后，<br>选课表：</p>
+<table>
+<thead>
+<tr>
+<th>学生</th>
+<th>课程</th>
+<th>教师</th>
+<th>教师职称</th>
+<th>教室</th>
+<th>上课时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>李四</td>
+<td>Spring</td>
+<td>张老师</td>
+<td>java 讲师</td>
+<td>301</td>
+<td>08:00</td>
+</tr>
+<tr>
+<td>张三</td>
+<td>Struts</td>
+<td>杨老师</td>
+<td>java 讲师</td>
+<td>302</td>
+<td>13:30</td>
+</tr>
+</tbody>
+</table>
+<p>课程表：</p>
+<table>
+<thead>
+<tr>
+<th>课程</th>
+<th>教材</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spring</td>
+<td>《Spring 深入浅出》</td>
+</tr>
+<tr>
+<td>Struts</td>
+<td>《Struts in Action》</td>
+</tr>
+</tbody>
+</table>
+<p>所以，第二范式可以说是消除部分依赖。第二范式可以减少插入异常，删除异常和修改异常。<br>第三范式（3NF）<br>定义：如果关系模式 R 是 2NF，且关系模式 R（U，F）中的所有非主属性对任何候选关键字都不存在传递依赖，则称关系 R 是属于第三范式。<br>简单的说，第三范式要满足以下的条件：首先要满足第二范式，其次非主属性之间不存在函数依赖。由于满足了第二范式，表示每个非主属性都函数依赖于主键。如果非主属性之间存在了函数依赖，就会存在传递依赖，这样就不满足第三范式。<br>上例中修改后的选课表中，一个教师能确定一个教师职称。这样，教师依赖于（学生，课程），而教师职称又依赖于教师，这叫传递依赖。第三范式就是要消除传递依赖。<br>修改后，<br>选课表：</p>
+<table>
+<thead>
+<tr>
+<th>学生</th>
+<th>课程</th>
+<th>教师</th>
+<th>教室</th>
+<th>上课时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>李四</td>
+<td>Spring</td>
+<td>张老师</td>
+<td>301</td>
+<td>08:00</td>
+</tr>
+<tr>
+<td>张三</td>
+<td>Struts</td>
+<td>杨老师</td>
+<td>302</td>
+<td>13:30</td>
+</tr>
+</tbody>
+</table>
+<p>教师表：</p>
+<table>
+<thead>
+<tr>
+<th>教师</th>
+<th>教师职称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>张老师</td>
+<td>java 讲师</td>
+</tr>
+<tr>
+<td>杨老师</td>
+<td>java 讲师</td>
+</tr>
+</tbody>
+</table>
+<p>这样，新教师的职称在没被选课的时候也有地方存了，没人选这个教师的课的时候教师的职称也不至于被删除，修改教师职称时只修改教师表就可以了。<br>简单的说，<br>第一范式就是原子性，字段不可再分割；<br>第二范式就是完全依赖，没有部分依赖；<br>第三范式就是没有传递依赖。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/设计规范/">设计规范</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/规范/">规范</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  
     <article id="post-大型网站技术架构梳理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -789,10 +1040,10 @@ master
 
 
   
-    <article id="post-intellij idea创建maven项目更新中央仓库archetype元数据太慢" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-java foreach的实现方式" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/" class="article-date">
+      <a href="/2017/03/08/java foreach的实现方式/" class="article-date">
       <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
 </a>
 
@@ -808,7 +1059,7 @@ master
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a>
+      <a class="article-title" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a>
     </h1>
   
 
@@ -818,7 +1069,40 @@ master
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在创建maven项目在第二个向导界面的Properties中添加一个参数archetypeCatalog=internal，不加这个参数，在maven生成骨架的时候将会非常慢，有时候会直接卡住。archetypeCatalog表示插件使用的archetype元数据，不加这个参数时默认为remote，local，即中央仓库archetype元数据，由于中央仓库的archetype太多了，所以导致很慢，指定internal来表示仅使用内部元数据。</p>
+        <p>java中有三种遍历集合的方式:</p>
+<pre><code>System.out.println(&quot;----------method1-----------&quot;);
+for (int i = 0; i &lt; list.size(); i++) {
+    System.out.println(list.get(i));
+}
+System.out.println(&quot;----------method2-----------&quot;);
+for (String s : list) {
+    System.out.println(s);
+    //ConcurrentModificationException,其实JAVA中的增强for循环底层是通过迭代器模式来实现的。
+    //list.remove(s);
+}
+System.out.println(&quot;----------method3-----------&quot;);
+Iterator iterator=list.iterator();
+while(iterator.hasNext()){
+    String s= (String) iterator.next();
+    if(s.equals(&quot;value1&quot;)){
+        //安全删除
+        iterator.remove();
+    }else{
+        System.out.println(s);    
+    }
+}
+</code></pre><p>运行方法2的时候，如果调用list.foreach方法，会报ConcurrentModificationException异常，<br>对以下代码反编译：</p>
+<pre><code>for (Integer i : list) { 
+    System.out.println(i); 
+} 
+</code></pre><p>编译后的结果：</p>
+<pre><code>Integer i; 
+for(Iterator iterator = list.iterator(); iterator.hasNext(); System.out.println(i)){ 
+    i = (Integer)iterator.next();         
+} 
+</code></pre><p>可以看到foreach的实现其实是用了迭代器,利用迭代器在集合遍历是删除会报ConcurrentModificationException异常,所以需要使用迭代器自带的删除方法操作，如果遍历时候需要删除操作，使用第三种（method3）遍历方式。</p>
+<p>Iterator是工作在一个独立的线程中，并且拥有一个 mutex 锁。 Iterator被创建之后会建立一个指向原来对象的单链索引表，当原来的对象数量发生变化时，这个索引表的内容不会同步改变，所以当索引指针往后移动的时候就找不到要迭代的对象，所以按照 fail-fast 原则 Iterator 会马上抛出java.util.ConcurrentModificationException异常。</p>
+<p>所以 Iterator 在工作的时候是不允许被迭代的对象被改变的。但你可以使用 Iterator 本身的方法 remove() 来删除对象，Iterator.remove() 方法会在删除当前迭代对象的同时维护索引的一致性。</p>
 
       
     </div>
@@ -829,7 +1113,7 @@ master
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
     </div>
 
       
@@ -908,10 +1192,10 @@ master
 
 
   
-    <article id="post-java foreach的实现方式" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-intellij idea创建maven项目更新中央仓库archetype元数据太慢" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/03/08/java foreach的实现方式/" class="article-date">
+      <a href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/" class="article-date">
       <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
 </a>
 
@@ -927,7 +1211,7 @@ master
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a>
+      <a class="article-title" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a>
     </h1>
   
 
@@ -937,40 +1221,163 @@ master
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>java中有三种遍历集合的方式:</p>
-<pre><code>System.out.println(&quot;----------method1-----------&quot;);
-for (int i = 0; i &lt; list.size(); i++) {
-    System.out.println(list.get(i));
-}
-System.out.println(&quot;----------method2-----------&quot;);
-for (String s : list) {
-    System.out.println(s);
-    //ConcurrentModificationException,其实JAVA中的增强for循环底层是通过迭代器模式来实现的。
-    //list.remove(s);
-}
-System.out.println(&quot;----------method3-----------&quot;);
-Iterator iterator=list.iterator();
-while(iterator.hasNext()){
-    String s= (String) iterator.next();
-    if(s.equals(&quot;value1&quot;)){
-        //安全删除
-        iterator.remove();
-    }else{
-        System.out.println(s);    
-    }
-}
-</code></pre><p>运行方法2的时候，如果调用list.foreach方法，会报ConcurrentModificationException异常，<br>对以下代码反编译：</p>
-<pre><code>for (Integer i : list) { 
-    System.out.println(i); 
-} 
-</code></pre><p>编译后的结果：</p>
-<pre><code>Integer i; 
-for(Iterator iterator = list.iterator(); iterator.hasNext(); System.out.println(i)){ 
-    i = (Integer)iterator.next();         
-} 
-</code></pre><p>可以看到foreach的实现其实是用了迭代器,利用迭代器在集合遍历是删除会报ConcurrentModificationException异常,所以需要使用迭代器自带的删除方法操作，如果遍历时候需要删除操作，使用第三种（method3）遍历方式。</p>
-<p>Iterator是工作在一个独立的线程中，并且拥有一个 mutex 锁。 Iterator被创建之后会建立一个指向原来对象的单链索引表，当原来的对象数量发生变化时，这个索引表的内容不会同步改变，所以当索引指针往后移动的时候就找不到要迭代的对象，所以按照 fail-fast 原则 Iterator 会马上抛出java.util.ConcurrentModificationException异常。</p>
-<p>所以 Iterator 在工作的时候是不允许被迭代的对象被改变的。但你可以使用 Iterator 本身的方法 remove() 来删除对象，Iterator.remove() 方法会在删除当前迭代对象的同时维护索引的一致性。</p>
+        <p>在创建maven项目在第二个向导界面的Properties中添加一个参数archetypeCatalog=internal，不加这个参数，在maven生成骨架的时候将会非常慢，有时候会直接卡住。archetypeCatalog表示插件使用的archetype元数据，不加这个参数时默认为remote，local，即中央仓库archetype元数据，由于中央仓库的archetype太多了，所以导致很慢，指定internal来表示仅使用内部元数据。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  
+    <article id="post-理解HTTP幂等性" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/08/理解HTTP幂等性/" class="article-date">
+      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>原文：<a href="http://www.cnblogs.com/weidagang2046/archive/2011/06/04/idempotence.html" target="_blank" rel="noopener">http://www.cnblogs.com/weidagang2046/archive/2011/06/04/idempotence.html</a></p>
+<p>基于HTTP协议的Web API是时下最为流行的一种分布式服务提供方式。无论是在大型互联网应用还是企业级架构中，我们都见到了越来越多的SOA或RESTful的Web API。为什么Web API如此流行呢？我认为很大程度上应归功于简单有效的HTTP协议。HTTP协议是一种分布式的面向资源的网络应用层协议，无论是服务器端提供Web服务，还是客户端消费Web服务都非常简单。再加上浏览器、Javascript、AJAX、JSON以及HTML5等技术和工具的发展，互联网应用架构设计表现出了从传统的PHP、JSP、ASP.NET等服务器端动态网页向Web API + RIA（富互联网应用）过渡的趋势。Web API专注于提供业务服务，RIA专注于用户界面和交互设计，从此两个领域的分工更加明晰。在这种趋势下，Web API设计将成为服务器端程序员的必修课。然而，正如简单的Java语言并不意味着高质量的Java程序，简单的HTTP协议也不意味着高质量的Web API。要想设计出高质量的Web API，还需要深入理解分布式系统及HTTP协议的特性。<br>幂等性定义</p>
+<p>本文所要探讨的正是HTTP协议涉及到的一种重要性质：幂等性(Idempotence)。在HTTP/1.1规范中幂等性的定义是：</p>
+<pre><code>Methods can also have the property of &quot;idempotence&quot; in that (aside from error or expiration issues) the side-effects of N &gt; 0 identical requests is the same as for a single request.
+</code></pre><p>从定义上看，HTTP方法的幂等性是指一次和多次请求某一个资源应该具有同样的副作用。幂等性属于语义范畴，正如编译器只能帮助检查语法错误一样，HTTP规范也没有办法通过消息格式等语法手段来定义它，这可能是它不太受到重视的原因之一。但实际上，幂等性是分布式系统设计中十分重要的概念，而HTTP的分布式本质也决定了它在HTTP中具有重要地位。<br>分布式事务 vs 幂等设计</p>
+<p>为什么需要幂等性呢？我们先从一个例子说起，假设有一个从账户取钱的远程API（可以是HTTP的，也可以不是），我们暂时用类函数的方式记为：</p>
+<p>bool withdraw(account_id, amount)</p>
+<p>withdraw的语义是从account_id对应的账户中扣除amount数额的钱；如果扣除成功则返回true，账户余额减少amount；如果扣除失败则返回false，账户余额不变。值得注意的是：和本地环境相比，我们不能轻易假设分布式环境的可靠性。一种典型的情况是withdraw请求已经被服务器端正确处理，但服务器端的返回结果由于网络等原因被掉丢了，导致客户端无法得知处理结果。如果是在网页上，一些不恰当的设计可能会使用户认为上一次操作失败了，然后刷新页面，这就导致了withdraw被调用两次，账户也被多扣了一次钱。如图1所示：</p>
+<p>non-idempotent</p>
+<p>图1<img src="http://images.cnblogs.com/cnblogs_com/weidagang2046/201108/20110810171503575.png" alt=""></p>
+<p>这个问题的解决方案一是采用分布式事务，通过引入支持分布式事务的中间件来保证withdraw功能的事务性。分布式事务的优点是对于调用者很简单，复杂性都交给了中间件来管理。缺点则是一方面架构太重量级，容易被绑在特定的中间件上，不利于异构系统的集成；另一方面分布式事务虽然能保证事务的ACID性质，而但却无法提供性能和可用性的保证。</p>
+<p>另一种更轻量级的解决方案是幂等设计。我们可以通过一些技巧把withdraw变成幂等的，比如：</p>
+<p>int create_ticket()<br>bool idempotent_withdraw(ticket_id, account_id, amount)</p>
+<p>create_ticket的语义是获取一个服务器端生成的唯一的处理号ticket_id，它将用于标识后续的操作。idempotent_withdraw和withdraw的区别在于关联了一个ticket_id，一个ticket_id表示的操作至多只会被处理一次，每次调用都将返回第一次调用时的处理结果。这样，idempotent_withdraw就符合幂等性了，客户端就可以放心地多次调用。</p>
+<p>基于幂等性的解决方案中一个完整的取钱流程被分解成了两个步骤：1.调用create_ticket()获取ticket_id；2.调用idempotent_withdraw(ticket_id, account_id, amount)。虽然create_ticket不是幂等的，但在这种设计下，它对系统状态的影响可以忽略，加上idempotent_withdraw是幂等的，所以任何一步由于网络等原因失败或超时，客户端都可以重试，直到获得结果。如图2所示：</p>
+<p>idempotent</p>
+<p>图2<img src="http://images.cnblogs.com/cnblogs_com/weidagang2046/201106/201106042051069339.png" alt=""></p>
+<p>和分布式事务相比，幂等设计的优势在于它的轻量级，容易适应异构环境，以及性能和可用性方面。在某些性能要求比较高的应用，幂等设计往往是唯一的选择。<br>HTTP的幂等性</p>
+<p>HTTP协议本身是一种面向资源的应用层协议，但对HTTP协议的使用实际上存在着两种不同的方式：一种是RESTful的，它把HTTP当成应用层协议，比较忠实地遵守了HTTP协议的各种规定；另一种是SOA的，它并没有完全把HTTP当成应用层协议，而是把HTTP协议作为了传输层协议，然后在HTTP之上建立了自己的应用层协议。本文所讨论的HTTP幂等性主要针对RESTful风格的，不过正如上一节所看到的那样，幂等性并不属于特定的协议，它是分布式系统的一种特性；所以，不论是SOA还是RESTful的Web API设计都应该考虑幂等性。下面将介绍HTTP GET、DELETE、PUT、POST四种主要方法的语义和幂等性。</p>
+<p>HTTP GET方法用于获取资源，不应有副作用，所以是幂等的。比如：GET <a href="http://www.bank.com/account/123456，不会改变资源的状态，不论调用一次还是N次都没有副作用。请注意，这里强调的是一次和N次具有相同的副作用，而不是每次GET的结果相同。GET" target="_blank" rel="noopener">http://www.bank.com/account/123456，不会改变资源的状态，不论调用一次还是N次都没有副作用。请注意，这里强调的是一次和N次具有相同的副作用，而不是每次GET的结果相同。GET</a> <a href="http://www.news.com/latest-news这个HTTP请求可能会每次得到不同的结果，但它本身并没有产生任何副作用，因而是满足幂等性的。" target="_blank" rel="noopener">http://www.news.com/latest-news这个HTTP请求可能会每次得到不同的结果，但它本身并没有产生任何副作用，因而是满足幂等性的。</a></p>
+<p>HTTP DELETE方法用于删除资源，有副作用，但它应该满足幂等性。比如：DELETE <a href="http://www.forum.com/article/4231，调用一次和N次对系统产生的副作用是相同的，即删掉id为4231的帖子；因此，调用者可以多次调用或刷新页面而不必担心引起错误。" target="_blank" rel="noopener">http://www.forum.com/article/4231，调用一次和N次对系统产生的副作用是相同的，即删掉id为4231的帖子；因此，调用者可以多次调用或刷新页面而不必担心引起错误。</a></p>
+<p>比较容易混淆的是HTTP POST和PUT。POST和PUT的区别容易被简单地误认为“POST表示创建资源，PUT表示更新资源”；而实际上，二者均可用于创建资源，更为本质的差别是在幂等性方面。在HTTP规范中对POST和PUT是这样定义的：</p>
+<pre><code>The POST method is used to request that the origin server accept the entity enclosed in the request as a new subordinate of the resource identified by the Request-URI in the Request-Line ...... If a resource has been created on the origin server, the response SHOULD be 201 (Created) and contain an entity which describes the status of the request and refers to the new resource, and a Location header.
+
+The PUT method requests that the enclosed entity be stored under the supplied Request-URI. If the Request-URI refers to an already existing resource, the enclosed entity SHOULD be considered as a modified version of the one residing on the origin server. If the Request-URI does not point to an existing resource, and that URI is capable of being defined as a new resource by the requesting user agent, the origin server can create the resource with that URI.
+</code></pre><p>POST所对应的URI并非创建的资源本身，而是资源的接收者。比如：POST <a href="http://www.forum.com/articles的语义是在http://www.forum.com/articles下创建一篇帖子，HTTP响应中应包含帖子的创建状态以及帖子的URI。两次相同的POST请求会在服务器端创建两份资源，它们具有不同的URI；所以，POST方法不具备幂等性。而PUT所对应的URI是要创建或更新的资源本身。比如：PUT" target="_blank" rel="noopener">http://www.forum.com/articles的语义是在http://www.forum.com/articles下创建一篇帖子，HTTP响应中应包含帖子的创建状态以及帖子的URI。两次相同的POST请求会在服务器端创建两份资源，它们具有不同的URI；所以，POST方法不具备幂等性。而PUT所对应的URI是要创建或更新的资源本身。比如：PUT</a> <a href="http://www.forum/articles/4231的语义是创建或更新ID为4231的帖子。对同一URI进行多次PUT的副作用和一次PUT是相同的；因此，PUT方法具有幂等性。" target="_blank" rel="noopener">http://www.forum/articles/4231的语义是创建或更新ID为4231的帖子。对同一URI进行多次PUT的副作用和一次PUT是相同的；因此，PUT方法具有幂等性。</a></p>
+<p>在介绍了几种操作的语义和幂等性之后，我们来看看如何通过Web API的形式实现前面所提到的取款功能。很简单，用POST /tickets来实现create_ticket；用PUT /accounts/account_id/ticket_id&amp;amount=xxx来实现idempotent_withdraw。值得注意的是严格来讲amount参数不应该作为URI的一部分，真正的URI应该是/accounts/account_id/ticket_id，而amount应该放在请求的body中。这种模式可以应用于很多场合，比如：论坛网站中防止意外的重复发帖。<br>总结</p>
+<p>上面简单介绍了幂等性的概念，用幂等设计取代分布式事务的方法，以及HTTP主要方法的语义和幂等性特征。其实，如果要追根溯源，幂等性是数学中的一个概念，表达的是N次变换与1次变换的结果相同</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/学习整理/">学习整理</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式/">分布式</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  
+    <article id="post-java问题整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/08/java问题整理/" class="article-date">
+      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/08/java问题整理/">Java问题整理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="java基础"><a href="#java基础" class="headerlink" title="java基础"></a>java基础</h2><p>Arrays.sort实现原理和Collection实现原理<br>foreach和while的区别(编译之后)<br>线程池的种类，区别和使用场景<br>分析线程池的实现原理和线程的调度过程<br>线程池如何调优<br>线程池的最大线程数目根据什么确定<br>动态代理的几种方式<br>HashMap的并发问题<br>了解LinkedHashMap的应用吗<br>反射的原理，反射创建类实例的三种方式是什么？<br>cloneable接口实现原理，浅拷贝or深拷贝<br>Java NIO使用<br>hashtable和hashmap的区别及实现原理，hashmap会问到数组索引，hash碰撞怎么解决<br>arraylist和linkedlist区别及实现原理<br>反射中，Class.forName和ClassLoader区别<br>String，Stringbuffer，StringBuilder的区别？<br>有没有可能2个不相等的对象有相同的hashcode<br>简述NIO的最佳实践，比如netty，mina<br>TreeMap的实现原理   </p>
+<h3 id="JVM相关"><a href="#JVM相关" class="headerlink" title="JVM相关"></a>JVM相关</h3><p>类的实例化顺序，比如父类静态数据，构造函数，字段，子类静态数据，构造函数，字段，他们的执行顺序<br>JVM内存分代<br>Java 8的内存分代改进<br>JVM垃圾回收机制，何时触发MinorGC等操作<br>jvm中一次完整的GC流程（从ygc到fgc）是怎样的，重点讲讲对象如何晋升到老年代，几种主要的jvm参数等<br>你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms，g1<br>新生代和老生代的内存回收策略<br>Eden和Survivor的比例分配等<br>深入分析了Classloader，双亲委派机制<br>JVM的编译优化<br>对Java内存模型的理解，以及其在并发中的应用<br>指令重排序，内存栅栏等<br>OOM错误，stackoverflow错误，permgen space错误<br>JVM常用参数<br>tomcat结构，类加载器流程<br>volatile的语义，它修饰的变量一定线程安全吗<br>g1和cms区别,吞吐量优先和响应优先的垃圾收集器选择<br>说一说你对环境变量classpath的理解？如果一个类不在classpath下，为什么会抛出ClassNotFoundException异常，如果在不改变这个类路径的前期下，怎样才能正确加载这个类？<br>说一下强引用、软引用、弱引用、虚引用以及他们之间和gc的关系      </p>
+<h3 id="JUC-并发相关"><a href="#JUC-并发相关" class="headerlink" title="JUC/并发相关"></a>JUC/并发相关</h3><p>ThreadLocal用过么，原理是什么，用的时候要注意什么<br>Synchronized和Lock的区别<br>synchronized 的原理，什么是自旋锁，偏向锁，轻量级锁，什么叫可重入锁，什么叫公平锁和非公平锁<br>concurrenthashmap具体实现及其原理，jdk8下的改版<br>用过哪些原子类，他们的参数以及原理是什么<br>cas是什么，他会产生什么问题（ABA问题的解决，如加入修改次数、版本号）<br>如果让你实现一个并发安全的链表，你会怎么做<br>简述ConcurrentLinkedQueue和LinkedBlockingQueue的用处和不同之处<br>简述AQS的实现原理<br>countdowlatch和cyclicbarrier的用法，以及相互之间的差别?<br>concurrent包中使用过哪些类？分别说说使用在什么场景？为什么要使用？<br>LockSupport工具<br>Condition接口及其实现原理<br>Fork/Join框架的理解<br>jdk8的parallelStream的理解<br>分段锁的原理,锁力度减小的思考    </p>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p>Spring AOP与IOC的实现原理<br>Spring的beanFactory和factoryBean的区别<br>为什么CGlib方式可以对接口实现代理？<br>RMI与代理模式<br>Spring的事务隔离级别，实现原理<br>对Spring的理解，非单例注入的原理？它的生命周期？循环注入的原理，aop的实现原理，说说aop中的几个术语，它们是怎么相互工作的？<br>Mybatis的底层实现原理<br>MVC框架原理，他们都是怎么做url路由的<br>spring boot特性，优势，适用场景等<br>quartz和timer对比<br>spring的controller是单例还是多例，怎么保证并发的安全   </p>
+<h2 id="分布式相关"><a href="#分布式相关" class="headerlink" title="分布式相关"></a>分布式相关</h2><p>Dubbo的底层实现原理和机制<br>描述一个服务从发布到被消费的详细过程<br>分布式系统怎么做服务治理<br>接口的幂等性的概念<br>消息中间件如何解决消息丢失问题<br>Dubbo的服务请求失败怎么处理<br>重连机制会不会造成错误<br>对分布式事务的理解<br>如何实现负载均衡，有哪些算法可以实现？<br>Zookeeper的用途，选举的原理是什么？<br>数据的垂直拆分水平拆分。<br>zookeeper原理和适用场景<br>zookeeper watch机制<br>redis/zk节点宕机如何处理<br>分布式集群下如何做到唯一序列号<br>如何做一个分布式锁<br>用过哪些MQ，怎么用的，和其他mq比较有什么优缺点，MQ的连接是线程安全的吗<br>MQ系统的数据如何保证不丢失<br>列举出你能想到的数据库分库分表策略；分库分表后，如何解决全表查询的问题。   </p>
+<h2 id="算法-amp-数据结构-amp-设计模式"><a href="#算法-amp-数据结构-amp-设计模式" class="headerlink" title="算法&amp;数据结构&amp;设计模式"></a>算法&amp;数据结构&amp;设计模式</h2><p>海量url去重类问题（布隆过滤器）<br>数组和链表数据结构描述，各自的时间复杂度<br>二叉树遍历<br>快速排序<br>BTree相关的操作<br>在工作中遇到过哪些设计模式，是如何应用的<br>hash算法的有哪几种，优缺点，使用场景<br>什么是一致性hash<br>paxos算法<br>在装饰器模式和代理模式之间，你如何抉择，请结合自身实际情况聊聊<br>代码重构的步骤和原因，如果理解重构到模式？   </p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><p>MySQL InnoDB存储的文件结构<br>索引树是如何维护的？<br>数据库自增主键可能的问题<br>MySQL的几种优化<br>mysql索引为什么使用B+树<br>数据库锁表的相关处理<br>索引失效场景<br>高并发下如何做到安全的修改同一行数据，乐观锁和悲观锁是什么，INNODB的行级锁有哪2种，解释其含义<br>数据库会死锁吗，举一个死锁的例子，mysql怎么解决死锁     </p>
+<h2 id="Redis-amp-缓存相关"><a href="#Redis-amp-缓存相关" class="headerlink" title="Redis&amp;缓存相关"></a>Redis&amp;缓存相关</h2><p>Redis的并发竞争问题如何解决了解Redis事务的CAS操作吗<br>缓存机器增删如何对系统影响最小，一致性哈希的实现<br>Redis持久化的几种方式，优缺点是什么，怎么实现的<br>Redis的缓存失效策略<br>缓存穿透的解决办法<br>redis集群，高可用，原理<br>mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据<br>用Redis和任意语言实现一段恶意登录保护的代码，限制1小时内每用户Id最多只能登录5次<br>redis的数据淘汰策略   </p>
+<h2 id="网络相关"><a href="#网络相关" class="headerlink" title="网络相关"></a>网络相关</h2><p>http1.0和http1.1有什么区别<br>TCP/IP协议<br>TCP三次握手和四次挥手的流程，为什么断开连接要4次,如果握手只有两次，会出现什么<br>TIME_WAIT和CLOSE_WAIT的区别<br>说说你知道的几种HTTP响应码<br>当你用浏览器打开一个链接的时候，计算机做了哪些工作步骤<br>TCP/IP如何保证可靠性，数据包有哪些数据组成<br>长连接与短连接<br>Http请求get和post的区别以及数据包格式<br>简述tcp建立连接3次握手，和断开连接4次握手的过程；关闭连接时，出现TIMEWAIT过多是由什么原因引起，是出现在主动断开方还是被动断开方。    </p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>maven解决依赖冲突,快照版和发行版的区别<br>Linux下IO模型有几种，各自的含义是什么<br>实际场景问题，海量登录日志如何排序和处理SQL操作，主要是索引和聚合函数的应用<br>实际场景问题解决，典型的TOP K问题<br>线上bug处理流程<br>如何从线上日志发现问题<br>linux利用哪些命令，查找哪里出了问题（例如io密集任务，cpu过度）<br>场景问题，有一个第三方接口，有很多个线程去调用获取数据，现在规定每秒钟最多有10个线程同时调用它，如何做到。<br>用三个线程按顺序循环打印abc三个字母，比如abcabcabc。<br>常见的缓存策略有哪些，你们项目中用到了什么缓存系统，如何设计的<br>设计一个秒杀系统，30分钟没付款就自动关闭交易（并发会很高）<br>请列出你所了解的性能测试工具<br>后台系统怎么防止请求重复提交？<br>有多个相同的接口，我想客户端同时请求，然后只需要在第一个请求返回结果的时候返回给客户端     </p>
 
       
     </div>
@@ -1251,162 +1658,6 @@ Value of C.sub: 5
 
 
   
-    <article id="post-java问题整理" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/08/java问题整理/" class="article-date">
-      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/08/java问题整理/">Java问题整理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="java基础"><a href="#java基础" class="headerlink" title="java基础"></a>java基础</h2><p>Arrays.sort实现原理和Collection实现原理<br>foreach和while的区别(编译之后)<br>线程池的种类，区别和使用场景<br>分析线程池的实现原理和线程的调度过程<br>线程池如何调优<br>线程池的最大线程数目根据什么确定<br>动态代理的几种方式<br>HashMap的并发问题<br>了解LinkedHashMap的应用吗<br>反射的原理，反射创建类实例的三种方式是什么？<br>cloneable接口实现原理，浅拷贝or深拷贝<br>Java NIO使用<br>hashtable和hashmap的区别及实现原理，hashmap会问到数组索引，hash碰撞怎么解决<br>arraylist和linkedlist区别及实现原理<br>反射中，Class.forName和ClassLoader区别<br>String，Stringbuffer，StringBuilder的区别？<br>有没有可能2个不相等的对象有相同的hashcode<br>简述NIO的最佳实践，比如netty，mina<br>TreeMap的实现原理   </p>
-<h3 id="JVM相关"><a href="#JVM相关" class="headerlink" title="JVM相关"></a>JVM相关</h3><p>类的实例化顺序，比如父类静态数据，构造函数，字段，子类静态数据，构造函数，字段，他们的执行顺序<br>JVM内存分代<br>Java 8的内存分代改进<br>JVM垃圾回收机制，何时触发MinorGC等操作<br>jvm中一次完整的GC流程（从ygc到fgc）是怎样的，重点讲讲对象如何晋升到老年代，几种主要的jvm参数等<br>你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms，g1<br>新生代和老生代的内存回收策略<br>Eden和Survivor的比例分配等<br>深入分析了Classloader，双亲委派机制<br>JVM的编译优化<br>对Java内存模型的理解，以及其在并发中的应用<br>指令重排序，内存栅栏等<br>OOM错误，stackoverflow错误，permgen space错误<br>JVM常用参数<br>tomcat结构，类加载器流程<br>volatile的语义，它修饰的变量一定线程安全吗<br>g1和cms区别,吞吐量优先和响应优先的垃圾收集器选择<br>说一说你对环境变量classpath的理解？如果一个类不在classpath下，为什么会抛出ClassNotFoundException异常，如果在不改变这个类路径的前期下，怎样才能正确加载这个类？<br>说一下强引用、软引用、弱引用、虚引用以及他们之间和gc的关系      </p>
-<h3 id="JUC-并发相关"><a href="#JUC-并发相关" class="headerlink" title="JUC/并发相关"></a>JUC/并发相关</h3><p>ThreadLocal用过么，原理是什么，用的时候要注意什么<br>Synchronized和Lock的区别<br>synchronized 的原理，什么是自旋锁，偏向锁，轻量级锁，什么叫可重入锁，什么叫公平锁和非公平锁<br>concurrenthashmap具体实现及其原理，jdk8下的改版<br>用过哪些原子类，他们的参数以及原理是什么<br>cas是什么，他会产生什么问题（ABA问题的解决，如加入修改次数、版本号）<br>如果让你实现一个并发安全的链表，你会怎么做<br>简述ConcurrentLinkedQueue和LinkedBlockingQueue的用处和不同之处<br>简述AQS的实现原理<br>countdowlatch和cyclicbarrier的用法，以及相互之间的差别?<br>concurrent包中使用过哪些类？分别说说使用在什么场景？为什么要使用？<br>LockSupport工具<br>Condition接口及其实现原理<br>Fork/Join框架的理解<br>jdk8的parallelStream的理解<br>分段锁的原理,锁力度减小的思考    </p>
-<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p>Spring AOP与IOC的实现原理<br>Spring的beanFactory和factoryBean的区别<br>为什么CGlib方式可以对接口实现代理？<br>RMI与代理模式<br>Spring的事务隔离级别，实现原理<br>对Spring的理解，非单例注入的原理？它的生命周期？循环注入的原理，aop的实现原理，说说aop中的几个术语，它们是怎么相互工作的？<br>Mybatis的底层实现原理<br>MVC框架原理，他们都是怎么做url路由的<br>spring boot特性，优势，适用场景等<br>quartz和timer对比<br>spring的controller是单例还是多例，怎么保证并发的安全   </p>
-<h2 id="分布式相关"><a href="#分布式相关" class="headerlink" title="分布式相关"></a>分布式相关</h2><p>Dubbo的底层实现原理和机制<br>描述一个服务从发布到被消费的详细过程<br>分布式系统怎么做服务治理<br>接口的幂等性的概念<br>消息中间件如何解决消息丢失问题<br>Dubbo的服务请求失败怎么处理<br>重连机制会不会造成错误<br>对分布式事务的理解<br>如何实现负载均衡，有哪些算法可以实现？<br>Zookeeper的用途，选举的原理是什么？<br>数据的垂直拆分水平拆分。<br>zookeeper原理和适用场景<br>zookeeper watch机制<br>redis/zk节点宕机如何处理<br>分布式集群下如何做到唯一序列号<br>如何做一个分布式锁<br>用过哪些MQ，怎么用的，和其他mq比较有什么优缺点，MQ的连接是线程安全的吗<br>MQ系统的数据如何保证不丢失<br>列举出你能想到的数据库分库分表策略；分库分表后，如何解决全表查询的问题。   </p>
-<h2 id="算法-amp-数据结构-amp-设计模式"><a href="#算法-amp-数据结构-amp-设计模式" class="headerlink" title="算法&amp;数据结构&amp;设计模式"></a>算法&amp;数据结构&amp;设计模式</h2><p>海量url去重类问题（布隆过滤器）<br>数组和链表数据结构描述，各自的时间复杂度<br>二叉树遍历<br>快速排序<br>BTree相关的操作<br>在工作中遇到过哪些设计模式，是如何应用的<br>hash算法的有哪几种，优缺点，使用场景<br>什么是一致性hash<br>paxos算法<br>在装饰器模式和代理模式之间，你如何抉择，请结合自身实际情况聊聊<br>代码重构的步骤和原因，如果理解重构到模式？   </p>
-<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><p>MySQL InnoDB存储的文件结构<br>索引树是如何维护的？<br>数据库自增主键可能的问题<br>MySQL的几种优化<br>mysql索引为什么使用B+树<br>数据库锁表的相关处理<br>索引失效场景<br>高并发下如何做到安全的修改同一行数据，乐观锁和悲观锁是什么，INNODB的行级锁有哪2种，解释其含义<br>数据库会死锁吗，举一个死锁的例子，mysql怎么解决死锁     </p>
-<h2 id="Redis-amp-缓存相关"><a href="#Redis-amp-缓存相关" class="headerlink" title="Redis&amp;缓存相关"></a>Redis&amp;缓存相关</h2><p>Redis的并发竞争问题如何解决了解Redis事务的CAS操作吗<br>缓存机器增删如何对系统影响最小，一致性哈希的实现<br>Redis持久化的几种方式，优缺点是什么，怎么实现的<br>Redis的缓存失效策略<br>缓存穿透的解决办法<br>redis集群，高可用，原理<br>mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据<br>用Redis和任意语言实现一段恶意登录保护的代码，限制1小时内每用户Id最多只能登录5次<br>redis的数据淘汰策略   </p>
-<h2 id="网络相关"><a href="#网络相关" class="headerlink" title="网络相关"></a>网络相关</h2><p>http1.0和http1.1有什么区别<br>TCP/IP协议<br>TCP三次握手和四次挥手的流程，为什么断开连接要4次,如果握手只有两次，会出现什么<br>TIME_WAIT和CLOSE_WAIT的区别<br>说说你知道的几种HTTP响应码<br>当你用浏览器打开一个链接的时候，计算机做了哪些工作步骤<br>TCP/IP如何保证可靠性，数据包有哪些数据组成<br>长连接与短连接<br>Http请求get和post的区别以及数据包格式<br>简述tcp建立连接3次握手，和断开连接4次握手的过程；关闭连接时，出现TIMEWAIT过多是由什么原因引起，是出现在主动断开方还是被动断开方。    </p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>maven解决依赖冲突,快照版和发行版的区别<br>Linux下IO模型有几种，各自的含义是什么<br>实际场景问题，海量登录日志如何排序和处理SQL操作，主要是索引和聚合函数的应用<br>实际场景问题解决，典型的TOP K问题<br>线上bug处理流程<br>如何从线上日志发现问题<br>linux利用哪些命令，查找哪里出了问题（例如io密集任务，cpu过度）<br>场景问题，有一个第三方接口，有很多个线程去调用获取数据，现在规定每秒钟最多有10个线程同时调用它，如何做到。<br>用三个线程按顺序循环打印abc三个字母，比如abcabcabc。<br>常见的缓存策略有哪些，你们项目中用到了什么缓存系统，如何设计的<br>设计一个秒杀系统，30分钟没付款就自动关闭交易（并发会很高）<br>请列出你所了解的性能测试工具<br>后台系统怎么防止请求重复提交？<br>有多个相同的接口，我想客户端同时请求，然后只需要在第一个请求返回结果的时候返回给客户端     </p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
-    <article id="post-理解HTTP幂等性" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/08/理解HTTP幂等性/" class="article-date">
-      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>原文：<a href="http://www.cnblogs.com/weidagang2046/archive/2011/06/04/idempotence.html" target="_blank" rel="noopener">http://www.cnblogs.com/weidagang2046/archive/2011/06/04/idempotence.html</a></p>
-<p>基于HTTP协议的Web API是时下最为流行的一种分布式服务提供方式。无论是在大型互联网应用还是企业级架构中，我们都见到了越来越多的SOA或RESTful的Web API。为什么Web API如此流行呢？我认为很大程度上应归功于简单有效的HTTP协议。HTTP协议是一种分布式的面向资源的网络应用层协议，无论是服务器端提供Web服务，还是客户端消费Web服务都非常简单。再加上浏览器、Javascript、AJAX、JSON以及HTML5等技术和工具的发展，互联网应用架构设计表现出了从传统的PHP、JSP、ASP.NET等服务器端动态网页向Web API + RIA（富互联网应用）过渡的趋势。Web API专注于提供业务服务，RIA专注于用户界面和交互设计，从此两个领域的分工更加明晰。在这种趋势下，Web API设计将成为服务器端程序员的必修课。然而，正如简单的Java语言并不意味着高质量的Java程序，简单的HTTP协议也不意味着高质量的Web API。要想设计出高质量的Web API，还需要深入理解分布式系统及HTTP协议的特性。<br>幂等性定义</p>
-<p>本文所要探讨的正是HTTP协议涉及到的一种重要性质：幂等性(Idempotence)。在HTTP/1.1规范中幂等性的定义是：</p>
-<pre><code>Methods can also have the property of &quot;idempotence&quot; in that (aside from error or expiration issues) the side-effects of N &gt; 0 identical requests is the same as for a single request.
-</code></pre><p>从定义上看，HTTP方法的幂等性是指一次和多次请求某一个资源应该具有同样的副作用。幂等性属于语义范畴，正如编译器只能帮助检查语法错误一样，HTTP规范也没有办法通过消息格式等语法手段来定义它，这可能是它不太受到重视的原因之一。但实际上，幂等性是分布式系统设计中十分重要的概念，而HTTP的分布式本质也决定了它在HTTP中具有重要地位。<br>分布式事务 vs 幂等设计</p>
-<p>为什么需要幂等性呢？我们先从一个例子说起，假设有一个从账户取钱的远程API（可以是HTTP的，也可以不是），我们暂时用类函数的方式记为：</p>
-<p>bool withdraw(account_id, amount)</p>
-<p>withdraw的语义是从account_id对应的账户中扣除amount数额的钱；如果扣除成功则返回true，账户余额减少amount；如果扣除失败则返回false，账户余额不变。值得注意的是：和本地环境相比，我们不能轻易假设分布式环境的可靠性。一种典型的情况是withdraw请求已经被服务器端正确处理，但服务器端的返回结果由于网络等原因被掉丢了，导致客户端无法得知处理结果。如果是在网页上，一些不恰当的设计可能会使用户认为上一次操作失败了，然后刷新页面，这就导致了withdraw被调用两次，账户也被多扣了一次钱。如图1所示：</p>
-<p>non-idempotent</p>
-<p>图1<img src="http://images.cnblogs.com/cnblogs_com/weidagang2046/201108/20110810171503575.png" alt=""></p>
-<p>这个问题的解决方案一是采用分布式事务，通过引入支持分布式事务的中间件来保证withdraw功能的事务性。分布式事务的优点是对于调用者很简单，复杂性都交给了中间件来管理。缺点则是一方面架构太重量级，容易被绑在特定的中间件上，不利于异构系统的集成；另一方面分布式事务虽然能保证事务的ACID性质，而但却无法提供性能和可用性的保证。</p>
-<p>另一种更轻量级的解决方案是幂等设计。我们可以通过一些技巧把withdraw变成幂等的，比如：</p>
-<p>int create_ticket()<br>bool idempotent_withdraw(ticket_id, account_id, amount)</p>
-<p>create_ticket的语义是获取一个服务器端生成的唯一的处理号ticket_id，它将用于标识后续的操作。idempotent_withdraw和withdraw的区别在于关联了一个ticket_id，一个ticket_id表示的操作至多只会被处理一次，每次调用都将返回第一次调用时的处理结果。这样，idempotent_withdraw就符合幂等性了，客户端就可以放心地多次调用。</p>
-<p>基于幂等性的解决方案中一个完整的取钱流程被分解成了两个步骤：1.调用create_ticket()获取ticket_id；2.调用idempotent_withdraw(ticket_id, account_id, amount)。虽然create_ticket不是幂等的，但在这种设计下，它对系统状态的影响可以忽略，加上idempotent_withdraw是幂等的，所以任何一步由于网络等原因失败或超时，客户端都可以重试，直到获得结果。如图2所示：</p>
-<p>idempotent</p>
-<p>图2<img src="http://images.cnblogs.com/cnblogs_com/weidagang2046/201106/201106042051069339.png" alt=""></p>
-<p>和分布式事务相比，幂等设计的优势在于它的轻量级，容易适应异构环境，以及性能和可用性方面。在某些性能要求比较高的应用，幂等设计往往是唯一的选择。<br>HTTP的幂等性</p>
-<p>HTTP协议本身是一种面向资源的应用层协议，但对HTTP协议的使用实际上存在着两种不同的方式：一种是RESTful的，它把HTTP当成应用层协议，比较忠实地遵守了HTTP协议的各种规定；另一种是SOA的，它并没有完全把HTTP当成应用层协议，而是把HTTP协议作为了传输层协议，然后在HTTP之上建立了自己的应用层协议。本文所讨论的HTTP幂等性主要针对RESTful风格的，不过正如上一节所看到的那样，幂等性并不属于特定的协议，它是分布式系统的一种特性；所以，不论是SOA还是RESTful的Web API设计都应该考虑幂等性。下面将介绍HTTP GET、DELETE、PUT、POST四种主要方法的语义和幂等性。</p>
-<p>HTTP GET方法用于获取资源，不应有副作用，所以是幂等的。比如：GET <a href="http://www.bank.com/account/123456，不会改变资源的状态，不论调用一次还是N次都没有副作用。请注意，这里强调的是一次和N次具有相同的副作用，而不是每次GET的结果相同。GET" target="_blank" rel="noopener">http://www.bank.com/account/123456，不会改变资源的状态，不论调用一次还是N次都没有副作用。请注意，这里强调的是一次和N次具有相同的副作用，而不是每次GET的结果相同。GET</a> <a href="http://www.news.com/latest-news这个HTTP请求可能会每次得到不同的结果，但它本身并没有产生任何副作用，因而是满足幂等性的。" target="_blank" rel="noopener">http://www.news.com/latest-news这个HTTP请求可能会每次得到不同的结果，但它本身并没有产生任何副作用，因而是满足幂等性的。</a></p>
-<p>HTTP DELETE方法用于删除资源，有副作用，但它应该满足幂等性。比如：DELETE <a href="http://www.forum.com/article/4231，调用一次和N次对系统产生的副作用是相同的，即删掉id为4231的帖子；因此，调用者可以多次调用或刷新页面而不必担心引起错误。" target="_blank" rel="noopener">http://www.forum.com/article/4231，调用一次和N次对系统产生的副作用是相同的，即删掉id为4231的帖子；因此，调用者可以多次调用或刷新页面而不必担心引起错误。</a></p>
-<p>比较容易混淆的是HTTP POST和PUT。POST和PUT的区别容易被简单地误认为“POST表示创建资源，PUT表示更新资源”；而实际上，二者均可用于创建资源，更为本质的差别是在幂等性方面。在HTTP规范中对POST和PUT是这样定义的：</p>
-<pre><code>The POST method is used to request that the origin server accept the entity enclosed in the request as a new subordinate of the resource identified by the Request-URI in the Request-Line ...... If a resource has been created on the origin server, the response SHOULD be 201 (Created) and contain an entity which describes the status of the request and refers to the new resource, and a Location header.
-
-The PUT method requests that the enclosed entity be stored under the supplied Request-URI. If the Request-URI refers to an already existing resource, the enclosed entity SHOULD be considered as a modified version of the one residing on the origin server. If the Request-URI does not point to an existing resource, and that URI is capable of being defined as a new resource by the requesting user agent, the origin server can create the resource with that URI.
-</code></pre><p>POST所对应的URI并非创建的资源本身，而是资源的接收者。比如：POST <a href="http://www.forum.com/articles的语义是在http://www.forum.com/articles下创建一篇帖子，HTTP响应中应包含帖子的创建状态以及帖子的URI。两次相同的POST请求会在服务器端创建两份资源，它们具有不同的URI；所以，POST方法不具备幂等性。而PUT所对应的URI是要创建或更新的资源本身。比如：PUT" target="_blank" rel="noopener">http://www.forum.com/articles的语义是在http://www.forum.com/articles下创建一篇帖子，HTTP响应中应包含帖子的创建状态以及帖子的URI。两次相同的POST请求会在服务器端创建两份资源，它们具有不同的URI；所以，POST方法不具备幂等性。而PUT所对应的URI是要创建或更新的资源本身。比如：PUT</a> <a href="http://www.forum/articles/4231的语义是创建或更新ID为4231的帖子。对同一URI进行多次PUT的副作用和一次PUT是相同的；因此，PUT方法具有幂等性。" target="_blank" rel="noopener">http://www.forum/articles/4231的语义是创建或更新ID为4231的帖子。对同一URI进行多次PUT的副作用和一次PUT是相同的；因此，PUT方法具有幂等性。</a></p>
-<p>在介绍了几种操作的语义和幂等性之后，我们来看看如何通过Web API的形式实现前面所提到的取款功能。很简单，用POST /tickets来实现create_ticket；用PUT /accounts/account_id/ticket_id&amp;amount=xxx来实现idempotent_withdraw。值得注意的是严格来讲amount参数不应该作为URI的一部分，真正的URI应该是/accounts/account_id/ticket_id，而amount应该放在请求的body中。这种模式可以应用于很多场合，比如：论坛网站中防止意外的重复发帖。<br>总结</p>
-<p>上面简单介绍了幂等性的概念，用幂等设计取代分布式事务的方法，以及HTTP主要方法的语义和幂等性特征。其实，如果要追根溯源，幂等性是数学中的一个概念，表达的是N次变换与1次变换的结果相同</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/学习整理/">学习整理</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式/">分布式</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
     <article id="post-安装配置RabbitMq" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1511,74 +1762,6 @@ guest   [administrator]
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MQ/">MQ</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
-    <article id="post-监控服务器Java异常脚本" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/13/监控服务器Java异常脚本/" class="article-date">
-      <time datetime="2017-02-13T01:59:53.000Z" itemprop="datePublished">2017-02-13</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <pre><code>tail -f /log/app/app.log|grep -P &quot;(^\tat |Exception|^Caused by: |\t... \d+ more)&quot;
-</code></pre><p>tail -f filename 可以加多个 -f fileName实现同时监控多个</p>
-<pre><code>tail -f /log/app/app.log -f /log/app/asyn.log|grep -P &quot;(^\tat |Exception|^Caused by: |\t... \d+ more)&quot;
-</code></pre><p>如果log日志前缀一样也可以这样写</p>
-<pre><code>tail -f /log/app/app_*.log|grep -P &quot;(^\tat |Exception|^Caused by: |\t... \d+ more)&quot;
-</code></pre><p>重定向到文件</p>
-<pre><code>tail -f /log/app/app.log|grep -P &quot;(^\tat |Exception|^Caused by: |\t... \d+ more)&quot;&gt;&gt;birkhoff/error.log
-</code></pre>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/脚本/">脚本</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bash/">bash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
     </div>
 
       
