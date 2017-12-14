@@ -507,6 +507,67 @@ L2将key:123更新为100 + 2
 
 
   
+    <article id="post-Memcached多线程与Redis单线程" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/25/Memcached多线程与Redis单线程/" class="article-date">
+      <time datetime="2017-04-24T16:00:00.000Z" itemprop="datePublished">2017-04-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <ol>
+<li>redis有各种复杂的数据结构list, has, set。也就是说，对于一个(key, value)，value的类型可以是list, hash, set。在实际应用场景中，很容易出现多个客户端对同一个key的这个复杂的value数据结构进行并发操作，如果是多线程，势必要引入锁，而锁却是性能杀手。相比较而言，memcached只有简单的get/set/add操作，没有复杂数据结构，在互斥这个问题上，没有redis那么严重。</li>
+<li>对于纯内存操作来说，cpu并不是瓶颈，瓶颈在网络IO上。所以即使单线程，也很快。另外，如果要利用多核的优势，可以在一个机器上开多个redis实例。</li>
+</ol>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  
     <article id="post-一致性hash算法" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -560,67 +621,6 @@ L2将key:123更新为100 + 2
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
-    <article id="post-Memcached多线程与Redis单线程" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/25/Memcached多线程与Redis单线程/" class="article-date">
-      <time datetime="2017-04-24T16:00:00.000Z" itemprop="datePublished">2017-04-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <ol>
-<li>redis有各种复杂的数据结构list, has, set。也就是说，对于一个(key, value)，value的类型可以是list, hash, set。在实际应用场景中，很容易出现多个客户端对同一个key的这个复杂的value数据结构进行并发操作，如果是多线程，势必要引入锁，而锁却是性能杀手。相比较而言，memcached只有简单的get/set/add操作，没有复杂数据结构，在互斥这个问题上，没有redis那么严重。</li>
-<li>对于纯内存操作来说，cpu并不是瓶颈，瓶颈在网络IO上。所以即使单线程，也很快。另外，如果要利用多核的优势，可以在一个机器上开多个redis实例。</li>
-</ol>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
     </div>
 
       
