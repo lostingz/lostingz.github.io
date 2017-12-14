@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Birkhoff" />
+
+
+
+<meta name="description" content="i++为什么是非线程安全的？先来解释下什么叫“线程安全” : 即一段代码可以被多个线程调用，调用过程中对象的状态不出现冲突，或者对象按照正确的顺序进行了操作。 i++ 线程安全是指我们读取一个值希望的是每一次读取到的值都是上一次+1 。 i++是分为三个步骤，获取i的值；temp = i+1操作；temp写入i; 如果存在两个线程，都执行i++. 正常情况应该是线程A 先执行，得到1； 线程B再执">
+<meta name="keywords" content="java,多线程,线程安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="atomic, synchronization and volatile">
+<meta property="og:url" content="https://lostingz.github.io/2017/04/07/atomic,synchronization and volatile/index.html">
+<meta property="og:site_name" content="Birkhoff&#39;s Blog">
+<meta property="og:description" content="i++为什么是非线程安全的？先来解释下什么叫“线程安全” : 即一段代码可以被多个线程调用，调用过程中对象的状态不出现冲突，或者对象按照正确的顺序进行了操作。 i++ 线程安全是指我们读取一个值希望的是每一次读取到的值都是上一次+1 。 i++是分为三个步骤，获取i的值；temp = i+1操作；temp写入i; 如果存在两个线程，都执行i++. 正常情况应该是线程A 先执行，得到1； 线程B再执">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-14T08:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="atomic, synchronization and volatile">
+<meta name="twitter:description" content="i++为什么是非线程安全的？先来解释下什么叫“线程安全” : 即一段代码可以被多个线程调用，调用过程中对象的状态不出现冲突，或者对象按照正确的顺序进行了操作。 i++ 线程安全是指我们读取一个值希望的是每一次读取到的值都是上一次+1 。 i++是分为三个步骤，获取i的值；temp = i+1操作；temp写入i; 如果存在两个线程，都执行i++. 正常情况应该是线程A 先执行，得到1； 线程B再执">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Birkhoff&#39;s Blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>atomic, synchronization and volatile | Birkhoff&#39;s Blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: 
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58f0318347967cae"></script>
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Birkhoff</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">纯粹，才是最强大的力量</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSS/">CSS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Session/">Session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lock/">lock</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/多线程/">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/科学上网/">科学上网</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线程安全/">线程安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://github.com/lostingz">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">true</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Birkhoff</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Birkhoff</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">纯粹，才是最强大的力量</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-atomic,synchronization and volatile" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/07/atomic,synchronization and volatile/" class="article-date">
+      <time datetime="2017-04-07T01:46:53.000Z" itemprop="datePublished">2017-04-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      atomic, synchronization and volatile
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/多线程/">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/线程安全/">线程安全</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="i-为什么是非线程安全的？"><a href="#i-为什么是非线程安全的？" class="headerlink" title="i++为什么是非线程安全的？"></a>i++为什么是非线程安全的？</h2><p>先来解释下什么叫“线程安全” :</p>
+<p>即一段代码可以被多个线程调用，调用过程中对象的状态不出现冲突，或者对象按照正确的顺序进行了操作。</p>
+<p>i++ 线程安全是指我们读取一个值希望的是每一次读取到的值都是上一次+1 。</p>
+<p>i++是分为三个步骤，获取i的值；temp = i+1操作；temp写入i; 如果存在两个线程，都执行i++. 正常情况应该是线程A 先执行，得到1； 线程B再执行，得到2.</p>
+<p>但是又常常出现：</p>
+<pre><code>线程A : 获取i的值;得到0；temp = i+1操作；得到i= 1;
+线程B : 获取i的值;得到0；temp = i+1操作；得到i= 1;
+线程A : i = temp 赋值 i =1 被写入；
+线程B ：i = temp 赋值 i =1 被写入；
+</code></pre><p>或者更形象的举例：线程A，B对i不停的进行操作，A执行i++, B执行打印。程序的逻辑是每次加1后就打，这样应该输出的结果是顺序的不断加1。由于i++不是原子操作，在执行的过程中发生了线程的切换，i+1没有被回写之前就被2访问了，这时打印的还是原来的数字，并不是预期的+1。</p>
+<p>线程的这种交叉操作会导致线程不安全。在Java中可以有很多方法来保证线程安全，即原子化 —— 同步，使用原子类，实现并发锁，使用volatile关键字，使用不变类和线程安全类。</p>
+<h2 id="何为-Atomic？"><a href="#何为-Atomic？" class="headerlink" title="何为 Atomic？"></a>何为 Atomic？</h2><pre><code>Atomic 一词跟原子有点关系，后者曾被人认为是最小物质的单位。计算机中的 Atomic 是指不能分割成若干部分的意思。如果一段代码被认为是 Atomic， 原子操作是指一个不受其他操作影响的操作任务单元，原子操作不能中断。原子操作是在多线程环境下避免数据不一致必须的手段。通常来说，原子指令由硬件提供，供软件来实现原子方法（某个线程进入该方法后，就不会被中断，直到其执行完成）
+</code></pre><p>如何实现原子操作</p>
+<p>为了解决这个问题，必须保证增加操作是原子的，在 JDK1.5 之前我们可以使用同步技术（synchonized关键字， 锁）来做到这一点。到 JDK1.5，java.util.concurrent.atomic 包提供了 int 和 long 类型的装类，它们可以自动的保证对于他们的操作是原子的并且不需要使用同步。</p>
+<p>同步技术/锁 ：synchronized 关键字修饰，给方法自动获取和释放锁</p>
+<pre><code>public class Example {
+    private int value = 0;    
+
+    public synchronized int getNextValue(){
+        return value++;
+    }
+}
+</code></pre><p>或者</p>
+<pre><code>public class Example {
+    private int value = 0;
+
+    public int getNextValue() {
+        synchronized (this) {
+            return value++;
+        }
+    }
+}
+</code></pre><p>或者想对其他对象加锁，而非当前对象</p>
+<pre><code>public class Example {
+    private int value = 0;
+
+    private final Object lock = new Object();
+
+    public int getNextValue() {
+        synchronized (lock) {
+            return value++;
+        }
+    }
+}
+</code></pre><h2 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h2><p>关键词：可见性</p>
+<pre><code>当对非volatile变量进行读写的时候，每个线程先从内存拷贝变量到CPU缓存中。如果计算机有多个CPU，每个线程可能在不同的CPU上被处理，这意味着每个线程可以考虑到不同的CPU cache中。
+而声明变量是volatile的，JVM保证了每次读变量都从内存中读，跳过CPU cache这一步。
+编译器可以改变指令执行的顺序以使吞吐量最大化，这种顺序上的便会导致内存的值不同步。
+</code></pre><p>volatile关键字为实例域的同步访问提供了一种免锁机制。如果声明一个域为volatile. 一些情况就可以确保多线程访问到的变量是最新的。（并发要求）</p>
+<pre><code>public class SharedObject{
+    public volatile int counter = 0;
+    }
+}
+</code></pre><p>一个线程对对象进行了操作，对象发生了变化，这种变化应该对其他线程是可见的。但是默认对这点没有任何保障。所以我们使用了Synchonized. 另一种方法是使用volatile关键字确保多线程对对象读写的可见性（但是只是在某些情况可以保证同步，比如一个线程读，然后写在了volatile变量上，其他线程只是进行读操作； 如果多个线程都进行读写，那么就一定要在用synchronized）。volatile只确保了可见性，并不能确保原子性。</p>
+<p>当我们使用 volatile 关键字去修饰变量的时候，所以线程都会直接读取该变量并且不缓存它。这就确保了线程读取到的变量是同内存中是一致的</p>
+<h2 id="原子操作类"><a href="#原子操作类" class="headerlink" title="原子操作类"></a>原子操作类</h2><p>几乎 java.util.concurrent 包中的所有类都使用原子变量，而不使用同步。原因是 同步（lock）机制并不是一个轻量级的操作，它存在一些缺点。缺点如下</p>
+<p>JUC这包里面提供了一组原子类。其基本的特性就是在多线程环境下，当有多个线程同时执行这些类的实例包含的方法时，具有排他性，即当某个线程进入方法，执行其中的指令时，不会被其他线程打断，而别的线程就像自旋锁一样，一直等到该方法执行完成，才由 JVM 从等待队列中选择一个另一个线程进入，这只是一种逻辑上的理解。实际上是借助硬件的相关指令来实现的，不会阻塞线程 (或者说只是在硬件级别上阻塞了)。</p>
+<p>根据修改的数据类型，可以将 JUC 包中的原子操作类可以分为 4 类。</p>
+<pre><code>基本类型: AtomicInteger, AtomicLong, AtomicBoolean ;
+数组类型: AtomicIntegerArray, AtomicLongArray, AtomicReferenceArray ;
+引用类型: AtomicReference, AtomicStampedRerence, AtomicMarkableReference ;
+对象的属性修改类型: AtomicIntegerFieldUpdater, AtomicLongFieldUpdater, AtomicReferenceFieldUpdater 。
+</code></pre><p>这些类都是基于CAS实现的。处理器提供了CAS操作来实现非加锁的原子操作。</p>
+<p>引用《Java Concurrency in Practice》里的一段描述：</p>
+<pre><code>在这里，CAS 指的是现代 CPU 广泛支持的一种对内存中的共享数据进行操作的一种特殊指令。这个指令会对内存中的共享数据做原子的读写操作。简单介绍一下这个指令的操作过程：首先，CPU 会将内存中将要被更改的数据与期望的值做比较。然后，当这两个值相等时，CPU 才会将内存中的数值替换为新的值。否则便不做操作。最后，CPU 会将旧的数值返回。这一系列的操作是原子的。它们虽然看似复杂，但却是 Java 5 并发机制优于原有锁机制的根本。简单来说，CAS 的含义是 “我认为原有的值应该是什么，如果是，则将原有的值更新为新值，否则不做修改，并告诉我原来的值是多少”。 CSA的优点：Compare and Set 是一个非阻塞的算法，这是它的优势。因为使用的是 CPU 支持的指令，提供了比原有的并发机制更好的性能和伸缩性。可以认为一般情况下性能更好，并且也更容易使用
+</code></pre><p>使用原子类实现i++方法</p>
+<pre><code>public class AtomicCounter {
+    private final AtomicInteger value = new AtomicInteger(0);
+
+    public int getValue(){
+        return value.get();
+    }
+
+    public int getNextValue(){
+        return value.incrementAndGet();
+    }
+
+    public int getPreviousValue(){
+        return value.decrementAndGet();
+    }
+}
+</code></pre><p>一个线程安全的栈</p>
+<pre><code>public class Stack {
+    private final AtomicReference&lt;Element&gt; head = new AtomicReference&lt;Element&gt;(null);
+
+    public void push(String value){
+        Element newElement = new Element(value);
+
+        while(true){
+            Element oldHead = head.get();
+            newElement.next = oldHead;
+
+            //Trying to set the new element as the head
+            if(head.compareAndSet(oldHead, newElement)){
+                return;
+            }
+        }
+    }
+
+    public String pop(){
+        while(true){
+            Element oldHead = head.get();
+
+            //The stack is empty
+            if(oldHead == null){
+                return null;
+            }
+
+            Element newHead = oldHead.next;
+
+            //Trying to set the new element as the head
+            if(head.compareAndSet(oldHead, newHead)){
+                return oldHead.value;
+            }
+        }
+    }
+
+    private static final class Element {
+        private final String value;
+        private Element next;
+
+        private Element(String value) {
+            this.value = value;
+        }
+    }
+}
+</code></pre><p>总结</p>
+<pre><code>synchronized 实现的同步能确保线程安全，实现可见性和原子性；但是代价大，效率低，更慢；
+volatile 能够实现多线程操作产生变化的可见性，但是不能实现原子性。
+atomic 类 是一种更轻量级的方法实现可见性和原子性
+</code></pre>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Birkhoff</a></p>
+        <p><span>发布时间:</span>2017-04-07, 09:46:53</p>
+        <p><span>最后更新:</span>2017-12-14, 16:10:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/04/07/atomic,synchronization and volatile/" title="atomic, synchronization and volatile">https://lostingz.github.io/2017/04/07/atomic,synchronization and volatile/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://lostingz.github.io/2017/04/07/atomic,synchronization and volatile/　　作者: Birkhoff" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/04/13/用 Redis 模拟 session/">
+                    Redis 模拟 session
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/04/07/springmvc工作原理/">
+                    SpringMVC 工作原理
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#i-为什么是非线程安全的？"><span class="toc-number">1.</span> <span class="toc-text"><a href="#i-&#x4E3A;&#x4EC0;&#x4E48;&#x662F;&#x975E;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#x7684;&#xFF1F;" class="headerlink" title="i++&#x4E3A;&#x4EC0;&#x4E48;&#x662F;&#x975E;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#x7684;&#xFF1F;"></a>i++&#x4E3A;&#x4EC0;&#x4E48;&#x662F;&#x975E;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#x7684;&#xFF1F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#何为-Atomic？"><span class="toc-number">2.</span> <span class="toc-text"><a href="#&#x4F55;&#x4E3A;-Atomic&#xFF1F;" class="headerlink" title="&#x4F55;&#x4E3A; Atomic&#xFF1F;"></a>&#x4F55;&#x4E3A; Atomic&#xFF1F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Volatile"><span class="toc-number">3.</span> <span class="toc-text"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原子操作类"><span class="toc-number">4.</span> <span class="toc-text"><a href="#&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#x7C7B;" class="headerlink" title="&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#x7C7B;"></a>&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#x7C7B;</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "e91642e4d5004df8950befdf033100e6",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/04/13/用 Redis 模拟 session/" title="上一篇: Redis 模拟 session">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/04/07/springmvc工作原理/" title="下一篇: SpringMVC 工作原理">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/11/多版本并发控制(MVCC)/">多版本并发控制(MVCC)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/09/缓存问题/">缓存问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/26/锁的性能和优化/">锁的性能和优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/一致性hash算法/">一致性hash算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/前端组件收集/">前端组件收集</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/用 Redis 模拟 session/">Redis 模拟 session</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/springmvc工作原理/">SpringMVC 工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/数据库三范式/">数据库三范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/大型网站技术架构梳理/">大型网站技术架构梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java问题整理/">Java问题整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/CAP理论/">CAP理论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/安装配置RabbitMq/">安装配置RabbitMq</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/guide/">git - 简明指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/最新Google hosts 持续更新/">最新Google hosts 持续更新</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/request_message/">HTTP请求报文解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/约定大于配置/">约定大于配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/maven使用总结/">maven使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/16/升级eclipse/">升级eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/09/PKIX path building failed的问题/">PKIX path building failed的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/线程安全性/">servlet 计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/Java虚拟机内存模型/">Java虚拟机内存模型</a></li></ul>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 Birkhoff
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

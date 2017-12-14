@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Birkhoff" />
+
+
+
+<meta name="description" content="HTTP请求报文由3部分组成（请求行+请求头+请求体）：   下面是一个实际的请求报文：   ① 是请求方法，GET和POST是最常见的HTTP方法，除此以外还包括DELETE、HEAD、OPTIONS、PUT、TRACE。不过，当前的大多数浏览器只支持GET和POST，Spring 3.0提供了一个HiddenHttpMethodFilter，允许你通过“_method”的表单参数指定这些特殊的">
+<meta name="keywords" content="http">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP请求报文解剖">
+<meta property="og:url" content="https://lostingz.github.io/2017/02/10/request_message/index.html">
+<meta property="og:site_name" content="Birkhoff&#39;s Blog">
+<meta property="og:description" content="HTTP请求报文由3部分组成（请求行+请求头+请求体）：   下面是一个实际的请求报文：   ① 是请求方法，GET和POST是最常见的HTTP方法，除此以外还包括DELETE、HEAD、OPTIONS、PUT、TRACE。不过，当前的大多数浏览器只支持GET和POST，Spring 3.0提供了一个HiddenHttpMethodFilter，允许你通过“_method”的表单参数指定这些特殊的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i.imgur.com/oIPQIoF.png">
+<meta property="og:image" content="http://i.imgur.com/myBqd6H.jpg">
+<meta property="og:image" content="http://i.imgur.com/9D9mqxi.png">
+<meta property="og:image" content="http://i.imgur.com/qW0r8iY.png">
+<meta property="og:image" content="http://i.imgur.com/jR36KBb.jpg">
+<meta property="og:updated_time" content="2017-12-14T08:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP请求报文解剖">
+<meta name="twitter:description" content="HTTP请求报文由3部分组成（请求行+请求头+请求体）：   下面是一个实际的请求报文：   ① 是请求方法，GET和POST是最常见的HTTP方法，除此以外还包括DELETE、HEAD、OPTIONS、PUT、TRACE。不过，当前的大多数浏览器只支持GET和POST，Spring 3.0提供了一个HiddenHttpMethodFilter，允许你通过“_method”的表单参数指定这些特殊的">
+<meta name="twitter:image" content="http://i.imgur.com/oIPQIoF.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Birkhoff&#39;s Blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>HTTP请求报文解剖 | Birkhoff&#39;s Blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: 
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58f0318347967cae"></script>
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Birkhoff</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">纯粹，才是最强大的力量</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSS/">CSS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Session/">Session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lock/">lock</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/多线程/">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/科学上网/">科学上网</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线程安全/">线程安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://github.com/lostingz">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">true</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Birkhoff</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Birkhoff</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">纯粹，才是最强大的力量</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-request_message" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/10/request_message/" class="article-date">
+      <time datetime="2017-02-10T06:46:53.000Z" itemprop="datePublished">2017-02-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      HTTP请求报文解剖
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/">http</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>HTTP请求报文由3部分组成<strong>（请求行+请求头+请求体）</strong>： </p>
+<p><img src="http://i.imgur.com/oIPQIoF.png" alt=""></p>
+<p>下面是一个实际的请求报文： </p>
+<p><img src="http://i.imgur.com/myBqd6H.jpg" alt=""></p>
+<p>① 是请求方法，GET和POST是最常见的HTTP方法，除此以外还包括DELETE、HEAD、OPTIONS、PUT、TRACE。不过，当前的大多数浏览器只支持GET和POST，Spring 3.0提供了一个HiddenHttpMethodFilter，允许你通过“_method”的表单参数指定这些特殊的HTTP方法（实际上还是通过POST提交表单）。服务端配置了HiddenHttpMethodFilter后，Spring会根据_method参数指定的值模拟出相应的HTTP方法，这样，就可以使用这些HTTP方法对处理方法进行映射了。 </p>
+<p>② 为请求对应的URL地址，它和报文头的Host属性组成完整的请求URL，③是协议名称及版本号。 </p>
+<p>④ 是HTTP的报文头，报文头包含若干个属性，格式为“属性名:属性值”，服务端据此获取客户端的信息。 </p>
+<p>⑤ 是报文体，它将一个页面表单中的组件值通过param1=value1&amp;param2=value2的键值对形式编码成一个格式化串，它承载多个请求参数的数据。不但报文体可以传递请求参数，请求URL也可以通过类似于“/chapter15/user.html? param1=value1&amp;param2=value2”的方式传递请求参数。 </p>
+<p>对照上面的请求报文，我们把它进一步分解，你可以看到一幅更详细的结构图： </p>
+<p><img src="http://i.imgur.com/9D9mqxi.png" alt=""></p>
+<blockquote>
+<p>1.IE系<br>HttpWatch是强大的网页数据分析工具，安装后将集成到Internet Explorer工具栏中。它不用代理服务器或一些复杂的网络监控工具，就能抓取请求及响应的完整信息，包括Cookies、消息头、查询参数、响应报文等，是Web应用开发人员的必备工具。<br> 2.Chrome,firefox<br>   自身的调试器已经很好用了，按F12就可以看到(IE10以上也直接按F12就可以调试了) </p>
+</blockquote>
+<h2 id="HTTP请求报文头属性"><a href="#HTTP请求报文头属性" class="headerlink" title="HTTP请求报文头属性"></a>HTTP请求报文头属性</h2><p>报文头属性是什么东西呢？我们不妨以一个小故事来说明吧。 </p>
+<blockquote>
+<p>快到中午了，张三丰不想去食堂吃饭，于是打电话叫外卖：老板，我要一份[鱼香肉丝]，要12：30之前给我送过来哦，我在江湖湖公司研发部，叫张三丰。</p>
+</blockquote>
+<p>这里，你要 <code>[鱼香肉丝]</code> 相当于HTTP报文体，而 <code>“12：30之前送过来”</code>，你叫 <code>“张三丰”</code> 等信息就相当于HTTP的报文头。它们是一些附属信息，帮忙你和饭店老板顺利完成这次交易。 </p>
+<p>请求HTTP报文和响应HTTP报文都拥有若干个报文关属性，它们是为协助客户端及服务端交易的一些附属信息。 </p>
+<h3 id="常见的HTTP请求报文头属性"><a href="#常见的HTTP请求报文头属性" class="headerlink" title="常见的HTTP请求报文头属性"></a>常见的HTTP请求报文头属性</h3><p><strong>Accept </strong></p>
+<p>请求报文可通过一个 <code>Accept</code> 报文头属性告诉服务端 客户端接受什么类型的响应。 </p>
+<p>如下报文头相当于告诉服务端，俺客户端能够接受的响应类型仅为纯文本数据啊，你丫别发其它什么图片啊，视频啊过来，那样我会歇菜的~~~： </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accept:text/plain</span><br></pre></td></tr></table></figure>
+<p>Accept属性的值可以为一个或多个MIME类型的值，关于MIME类型，大家请参考：<a href="http://en.wikipedia.org/wiki/MIME_type" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/MIME_type</a></p>
+<p><strong>Cookie</strong></p>
+<p>这是第一个要说的，客户端的Cookie就是通过这个报文头属性传给服务端的哦！如下所示： </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cookie:skin=blue; jsessionid=5F4771183629C9834F8382E23BE13C4C</span><br></pre></td></tr></table></figure>
+<p>注意到后台的那个 <code>jsessionid=5F4771183629C9834F8382E23BE13C4C</code> 没有，<br>服务端是怎么知道客户端的多个请求是属于一个Session的，原来就是通过HTTP请求报文头的Cookie属性的jsessionid的值关联起来的！（当然也可以通过重写URL的方式将会话ID附带在每个URL的后后面哦）。</p>
+<p><strong>Referer</strong></p>
+<p>表示这个请求是从哪个URL过来的，假如你通过google搜索出一个商家的广告页面，你对这个广告页面感兴趣，鼠标一点发送一个请求报文到商家的网站，这个请求报文的Referer报文头属性值就是 <a href="http://www.google.com。" target="_blank" rel="noopener">http://www.google.com。</a> </p>
+<p>很多貌似神奇的网页监控软件（如著名的 <a href="http://www.51.la/" target="_blank" rel="noopener">我要啦</a>），只要在你的网页上放上一段JavaScript，就可以帮你监控流量，全国访问客户的分布情况等报表和图表，其原理就是通过这个Referer及其它一些HTTP报文头工作的。</p>
+<p><strong>Cache-Control</strong></p>
+<p>对缓存进行控制，如一个请求希望响应返回的内容在客户端要被缓存一年，或不希望被缓存就可以通过这个报文头达到目的。 </p>
+<p>如以下设置，相当于让服务端将对应请求返回的响应内容不要在客户端缓存（当然响应报文也是通过响应报文头通知浏览器客户端的，这个下面再说）： </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cache-Control: no-cache</span><br></pre></td></tr></table></figure>
+<h3 id="其它报文头属性"><a href="#其它报文头属性" class="headerlink" title="其它报文头属性"></a>其它报文头属性</h3><p>参见：<a href="http://en.wikipedia.org/wiki/List_of_HTTP_header_fields" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/List_of_HTTP_header_fields</a></p>
+<h3 id="如何访问请求报文头"><a href="#如何访问请求报文头" class="headerlink" title="如何访问请求报文头"></a>如何访问请求报文头</h3><p>由于请求报文头是客户端发过来的，服务端当然只能读取了，以下是 <code>HttpServletRequest</code> 一些用于读取请求报文头的API：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取请求报文中的属性名称</span></span><br><span class="line">java.util.Enumeration&lt;java.lang.String&gt;	getHeaderNames();</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取指定名称的报文头属性的值</span></span><br><span class="line">java.lang.<span class="function">String <span class="title">getHeader</span><span class="params">(java.lang.String name)</span></span></span><br></pre></td></tr></table></figure>
+<p>由于一些请求报文头属性“太著名”了，因此HttpServletRequest为它们提供了VIP的API： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取报文头中的Cookie(读取Cookie的报文头属性）</span></span><br><span class="line"> Cookie[]	getCookies() ;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取客户端本地化信息（读取 Accept-Language 的报文头属性）</span></span><br><span class="line">java.util.<span class="function">Locale	<span class="title">getLocale</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//获取请求报文体的长度（读取Content-Length的报文头属性）</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getContentLength</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<p>HttpServletRequest可以通过 <code>HttpSession getSession()</code></p>
+<p>获取请求所关联的HttpSession,其内部的机理是通过读取请求报文头中Cookie属性的JSESSIONID的值，在服务端的一个会话Map中，根据这个JSESSIONID获取对应的HttpSession的对象。<br>（这样，你就不会觉得HttpSession很神秘了吧，你自己也可以做一个类似的会话管理）</p>
+<h2 id="HTTP响应报文解剖"><a href="#HTTP响应报文解剖" class="headerlink" title="HTTP响应报文解剖"></a>HTTP响应报文解剖</h2><h3 id="响应报文结构"><a href="#响应报文结构" class="headerlink" title="响应报文结构"></a>响应报文结构</h3><p>HTTP的响应报文也由三部分组成<strong>（响应行+响应头+响应体</strong>）： </p>
+<p><img src="http://i.imgur.com/qW0r8iY.png" alt=""></p>
+<p>以下是一个实际的HTTP响应报文： </p>
+<p><img src="http://i.imgur.com/jR36KBb.jpg" alt=""></p>
+<p>① 报文协议及版本；<br>② 状态码及状态描述；<br>③ 响应报文头，也是由多个属性组成；<br>④ 响应报文体，即我们真正要的“干货”。 </p>
+<h3 id="响应状态码"><a href="#响应状态码" class="headerlink" title="响应状态码"></a>响应状态码</h3><p>和请求报文相比，响应报文多了一个“响应状态码”，它以“清晰明确”的语言告诉客户端本次请求的处理结果。 </p>
+<p>HTTP的响应状态码由5段组成： </p>
+<ul>
+<li>1xx 消息，一般是告诉客户端，请求已经收到了，正在处理，别急…</li>
+<li>2xx 处理成功，一般表示：请求收悉、我明白你要的、请求已受理、已经处理完成等信息.</li>
+<li>3xx 重定向到其它地方。它让客户端再发起一个请求以完成整个处理。</li>
+<li>4xx 处理发生错误，责任在客户端，如客户端的请求一个不存在的资源，客户端未被授权，禁止访问等。</li>
+<li>5xx 处理发生，责任在服务端，如服务端抛出异常，路由出错，HTTP版本不支持等。</li>
+</ul>
+<p>以下是几个常见的状态码： </p>
+<p><strong>200 OK</strong></p>
+<p>你最希望看到的，即处理成功！ </p>
+<p><strong>303 See Other</strong></p>
+<p>我把你redirect到其它的页面，目标的URL通过响应报文头的Location告诉你。 </p>
+<blockquote>
+<p>悟空：师傅给个桃吧，走了一天了 :relieved:<br>唐僧：我哪有桃啊！去王母娘娘那找吧 :unamused:</p>
+</blockquote>
+<p><strong>304 Not Modified</strong></p>
+<p>告诉客户端，你请求的这个资源至你上次取得后，并没有更改，你直接用你本地的缓存吧，我很忙哦，你能不能少来烦我啊！ </p>
+<p><strong>404 Not Found</strong></p>
+<p>你最不希望看到的，即找不到页面。如你在google上找到一个页面，点击这个链接返回404，表示这个页面已经被网站删除了，google那边的记录只是美好的回忆。 </p>
+<p><strong>500 Internal Server Error</strong></p>
+<p>看到这个错误，你就应该查查服务端的日志了，肯定抛出了一堆异常，别睡了，起来改BUG去吧！ </p>
+<p>有些响应码，Web应用服务器会自动给生成。你可以通过HttpServletResponse的API设置状态码： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//设置状态码，状态码在HttpServletResponse中通过一系列的常量预定义了，如SC_ACCEPTED，SC_OK</span></span><br><span class="line"><span class="function"><span class="keyword">void</span>	<span class="title">setStatus</span><span class="params">(<span class="keyword">int</span> sc)</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="常见的HTTP响应报文头属性"><a href="#常见的HTTP响应报文头属性" class="headerlink" title="常见的HTTP响应报文头属性"></a>常见的HTTP响应报文头属性</h3><p><strong>Cache-Control</strong></p>
+<p>响应输出到客户端后，服务端通过该报文头属告诉客户端如何控制响应内容的缓存。 </p>
+<p>下面，的设置让客户端对响应内容缓存3600秒，也即在3600秒内，如果客户再次访问该资源，直接从客户端的缓存中返回内容给客户，不要再从服务端获取（当然，这个功能是靠客户端实现的，服务端只是通过这个属性提示客户端“应该这么做”，做不做，还是决定于客户端，如果是自己宣称支持HTTP的客户端，则就应该这样实现）。 </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cache-Control: max-age=3600</span><br></pre></td></tr></table></figure>
+<p><strong>ETag</strong></p>
+<p>一个代表响应服务端资源（如页面）版本的报文头属性，如果某个服务端资源发生变化了，这个ETag就会相应发生变化。它是Cache-Control的有益补充，可以让客户端“更智能”地处理什么时候要从服务端取资源，什么时候可以直接从缓存中返回响应。</p>
+<p>关于ETag的说明，你可以参见：<a href="http://en.wikipedia.org/wiki/HTTP_ETag" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/HTTP_ETag</a>。<br>Spring 3.0还专门为此提供了一个 <code>org.springframework.web.filter.ShallowEtagHeaderFilter</code> （实现原理很简单，对JSP输出的内容MD5，这样内容有变化ETag就相应变化了），用于生成响应的ETag，因为这东东确实可以帮助减少请求和响应的交互。 </p>
+<p>下面是一个ETag： </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ETag: <span class="string">"737060cd8c284d8af7ad3082f209582d"</span></span><br></pre></td></tr></table></figure>
+<p><strong>Location</strong></p>
+<p>我们在JSP中让页面Redirect到一个某个A页面中，其实是让客户端再发一个请求到A页面，这个需要Redirect的A页面的URL，其实就是通过响应报文头的Location属性告知客户端的，如下的报文头属性，将使客户端redirect到iteye的首页中： </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Location: https://github.com/biezhi/jb</span><br></pre></td></tr></table></figure>
+<p><strong>Set-Cookie</strong></p>
+<p>服务端可以设置客户端的Cookie，其原理就是通过这个响应报文头属性实现的：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: UserID=Jack; Max-Age=3600; Version=1</span><br></pre></td></tr></table></figure>
+<h3 id="其它HTTP请求报文头属性"><a href="#其它HTTP请求报文头属性" class="headerlink" title="其它HTTP请求报文头属性"></a>其它HTTP请求报文头属性</h3><p>更多其它的HTTP请求头报文，参见：<a href="http://en.wikipedia.org/wiki/List_of_HTTP_header_fields" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/List_of_HTTP_header_fields</a></p>
+<h3 id="如何写HTTP请求报文头"><a href="#如何写HTTP请求报文头" class="headerlink" title="如何写HTTP请求报文头"></a>如何写HTTP请求报文头</h3><p>在服务端可以通过HttpServletResponse的API写响应报文头的属性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//添加一个响应报文头属性</span></span><br><span class="line"><span class="function"><span class="keyword">void</span>	<span class="title">setHeader</span><span class="params">(String name, String value)</span></span></span><br></pre></td></tr></table></figure>
+<p>像Cookie，Location这些响应头是有福之人，HttpServletResponse为它们都提供了VIP（非API 哈）： </p>
+<pre><code class="java"><span class="comment">//添加Cookie报文头属性</span>
+<span class="function"><span class="keyword">void</span> <span class="title">addCookie</span><span class="params">(Cookie cookie)</span> </span>
+<span class="function"></span>
+<span class="function"><span class="comment">//不但会设置Location的响应报文头，还会生成303的状态码呢，两者天仙配呢</span></span>
+<span class="function"><span class="keyword">void</span>    <span class="title">sendRedirect</span><span class="params">(String location)</span></span>
+</code></pre>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/02/10/request_message/">HTTP请求报文解剖</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Birkhoff</a></p>
+        <p><span>发布时间:</span>2017-02-10, 14:46:53</p>
+        <p><span>最后更新:</span>2017-12-14, 16:10:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/02/10/request_message/" title="HTTP请求报文解剖">https://lostingz.github.io/2017/02/10/request_message/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://lostingz.github.io/2017/02/10/request_message/　　作者: Birkhoff" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/02/10/最新Google hosts 持续更新/">
+                    最新Google hosts 持续更新
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/02/10/约定大于配置/">
+                    约定大于配置
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP请求报文头属性"><span class="toc-number">1.</span> <span class="toc-text"><a href="#HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;" class="headerlink" title="HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;"></a>HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#常见的HTTP请求报文头属性"><span class="toc-number">1.1.</span> <span class="toc-text"><a href="#&#x5E38;&#x89C1;&#x7684;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;" class="headerlink" title="&#x5E38;&#x89C1;&#x7684;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;"></a>&#x5E38;&#x89C1;&#x7684;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它报文头属性"><span class="toc-number">1.2.</span> <span class="toc-text"><a href="#&#x5176;&#x5B83;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;" class="headerlink" title="&#x5176;&#x5B83;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;"></a>&#x5176;&#x5B83;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何访问请求报文头"><span class="toc-number">1.3.</span> <span class="toc-text"><a href="#&#x5982;&#x4F55;&#x8BBF;&#x95EE;&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;" class="headerlink" title="&#x5982;&#x4F55;&#x8BBF;&#x95EE;&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;"></a>&#x5982;&#x4F55;&#x8BBF;&#x95EE;&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP响应报文解剖"><span class="toc-number">2.</span> <span class="toc-text"><a href="#HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x89E3;&#x5256;" class="headerlink" title="HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x89E3;&#x5256;"></a>HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x89E3;&#x5256;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#响应报文结构"><span class="toc-number">2.1.</span> <span class="toc-text"><a href="#&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x7ED3;&#x6784;" class="headerlink" title="&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x7ED3;&#x6784;"></a>&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x7ED3;&#x6784;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#响应状态码"><span class="toc-number">2.2.</span> <span class="toc-text"><a href="#&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;" class="headerlink" title="&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;"></a>&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常见的HTTP响应报文头属性"><span class="toc-number">2.3.</span> <span class="toc-text"><a href="#&#x5E38;&#x89C1;&#x7684;HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;" class="headerlink" title="&#x5E38;&#x89C1;&#x7684;HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;"></a>&#x5E38;&#x89C1;&#x7684;HTTP&#x54CD;&#x5E94;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它HTTP请求报文头属性"><span class="toc-number">2.4.</span> <span class="toc-text"><a href="#&#x5176;&#x5B83;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;" class="headerlink" title="&#x5176;&#x5B83;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;"></a>&#x5176;&#x5B83;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;&#x5C5E;&#x6027;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何写HTTP请求报文头"><span class="toc-number">2.5.</span> <span class="toc-text"><a href="#&#x5982;&#x4F55;&#x5199;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;" class="headerlink" title="&#x5982;&#x4F55;&#x5199;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;"></a>&#x5982;&#x4F55;&#x5199;HTTP&#x8BF7;&#x6C42;&#x62A5;&#x6587;&#x5934;</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "e91642e4d5004df8950befdf033100e6",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/02/10/最新Google hosts 持续更新/" title="上一篇: 最新Google hosts 持续更新">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/02/10/约定大于配置/" title="下一篇: 约定大于配置">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/11/多版本并发控制(MVCC)/">多版本并发控制(MVCC)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/09/缓存问题/">缓存问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/26/锁的性能和优化/">锁的性能和优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/一致性hash算法/">一致性hash算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/前端组件收集/">前端组件收集</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/用 Redis 模拟 session/">Redis 模拟 session</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/springmvc工作原理/">SpringMVC 工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/数据库三范式/">数据库三范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/大型网站技术架构梳理/">大型网站技术架构梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java问题整理/">Java问题整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/CAP理论/">CAP理论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/安装配置RabbitMq/">安装配置RabbitMq</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/guide/">git - 简明指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/最新Google hosts 持续更新/">最新Google hosts 持续更新</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/request_message/">HTTP请求报文解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/约定大于配置/">约定大于配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/maven使用总结/">maven使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/16/升级eclipse/">升级eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/09/PKIX path building failed的问题/">PKIX path building failed的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/线程安全性/">servlet 计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/Java虚拟机内存模型/">Java虚拟机内存模型</a></li></ul>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 Birkhoff
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

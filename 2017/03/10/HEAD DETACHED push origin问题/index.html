@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Birkhoff" />
+
+
+
+<meta name="description" content="###HEAD DETACHED push origin失败问题 原文：http://www.cnblogs.com/iwangzc/p/4073117.html 先说HEAD HEAD是一个头指针，通常情况下指向不同的分支，每个分支对应一个commit（准确的说，每个分支对应多个commit，但是只有一个顶层的commit，而commit之间是简单的线性关系。） git checkout 其实是">
+<meta name="keywords" content="git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HEAD DETACHED push origin失败">
+<meta property="og:url" content="https://lostingz.github.io/2017/03/10/HEAD DETACHED push origin问题/index.html">
+<meta property="og:site_name" content="Birkhoff&#39;s Blog">
+<meta property="og:description" content="###HEAD DETACHED push origin失败问题 原文：http://www.cnblogs.com/iwangzc/p/4073117.html 先说HEAD HEAD是一个头指针，通常情况下指向不同的分支，每个分支对应一个commit（准确的说，每个分支对应多个commit，但是只有一个顶层的commit，而commit之间是简单的线性关系。） git checkout 其实是">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-14T08:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HEAD DETACHED push origin失败">
+<meta name="twitter:description" content="###HEAD DETACHED push origin失败问题 原文：http://www.cnblogs.com/iwangzc/p/4073117.html 先说HEAD HEAD是一个头指针，通常情况下指向不同的分支，每个分支对应一个commit（准确的说，每个分支对应多个commit，但是只有一个顶层的commit，而commit之间是简单的线性关系。） git checkout 其实是">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Birkhoff&#39;s Blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>HEAD DETACHED push origin失败 | Birkhoff&#39;s Blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: 
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58f0318347967cae"></script>
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Birkhoff</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">纯粹，才是最强大的力量</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSS/">CSS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Session/">Session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lock/">lock</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/多线程/">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/科学上网/">科学上网</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线程安全/">线程安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://github.com/lostingz">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">true</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Birkhoff</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Birkhoff</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">纯粹，才是最强大的力量</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-HEAD DETACHED push origin问题" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/10/HEAD DETACHED push origin问题/" class="article-date">
+      <time datetime="2017-03-10T01:59:53.000Z" itemprop="datePublished">2017-03-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      HEAD DETACHED push origin失败
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>###HEAD DETACHED push origin失败问题</p>
+<p>原文：<a href="http://www.cnblogs.com/iwangzc/p/4073117.html" target="_blank" rel="noopener">http://www.cnblogs.com/iwangzc/p/4073117.html</a></p>
+<p>先说HEAD</p>
+<p>HEAD是一个头指针，通常情况下指向不同的分支，每个分支对应一个commit（准确的说，每个分支对应多个commit，但是只有一个顶层的commit，而commit之间是简单的线性关系。）</p>
+<p>git checkout 其实是修改HEAD文件的内容，让它指向不同的分支。</p>
+<p>下面是一个一般的情况：</p>
+<pre><code>HEAD (refers to branch &apos;master&apos;)
+           |
+           v
+   a---b---c  branch &apos;master&apos; (refers to commit &apos;c&apos;)
+</code></pre><p>既然checkout是修改HEAD，所以可以出现下面的情况：</p>
+<pre><code>HEAD (refers to commit &apos;b&apos;)
+     |
+     v
+ a---b---c  branch &apos;master&apos; (refers to commit &apos;c&apos;)
+</code></pre><p>HEAD指向b，用git branch看看有几个分支：</p>
+<pre><code>×HEAD detached from b
+master
+</code></pre><p>发现有两个分支，可是我们没有创建除了master以外的任何分支啊～</p>
+<p>可以把HEAD detached from b理解为一个临时的分支，并且这时候HEAD指针是游离普通分支之的。</p>
+<p>在这个临时分支上可以进行git的一切操作：add commit 等等，像这样：</p>
+<pre><code>HEAD (refers to commit &apos;f&apos;)
+                  |
+                  v
+             e---f
+            /
+       a---b---c  branch &apos;master&apos; (refers to commit &apos;c&apos;)
+</code></pre><p>假如远程库中有一个master分支，一个用来开发的develop分支，这时候如果我们要向远程库推送，会发现无法推送。</p>
+<p>因为HEAD不知道要把内容推送到哪个远程分支上去。</p>
+<p>那么问题来了，怎么把修改的内容提交到远程库呢？</p>
+<p>由于本地没有develop分支，所以需要先这样：</p>
+<pre><code>git fetch origin develop:develop
+</code></pre><p>在本地创建一个develop分支，并且把它和远程develop关联起来。现在再看看本地有哪些分支：</p>
+<pre><code>git branch
+
+×develop
+master
+</code></pre><p>刚才的HEAD detached from b分支消失了！ 在这个分支下修改的内容也不见了！</p>
+<p>没关系，进行下一步。</p>
+<pre><code>git reflog show HEAD@{now} -10
+</code></pre><p>这个命令会把HEAD指针所有的动作显示出来。从中可以清楚的看到，在指针中提交对应的commit id</p>
+<p>找到需要恢复的commit ，记下前面的commit id</p>
+<pre><code>git branch temp efa64f5 
+</code></pre><p>新建一个名字叫temp的分支，用这个分支代替之前的临时分支并且拥有想要恢复的commit，现在切换到temp下会发现一切都回来了</p>
+<p>但是还是不能推送啊。原因是temp是我们本地的分支，远程库中并没有这个分支。</p>
+<pre><code>git checkout develop
+</code></pre><p>切换到从远程库拉取到的develop分支</p>
+<pre><code>git merge temp
+</code></pre><p>将temp分支合并到develop分支上，有冲突就解决冲突。</p>
+<p>最后：</p>
+<pre><code>git push origin develop
+</code></pre>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Birkhoff</a></p>
+        <p><span>发布时间:</span>2017-03-10, 09:59:53</p>
+        <p><span>最后更新:</span>2017-12-14, 16:10:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/10/HEAD DETACHED push origin问题/" title="HEAD DETACHED push origin失败">https://lostingz.github.io/2017/03/10/HEAD DETACHED push origin问题/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://lostingz.github.io/2017/03/10/HEAD DETACHED push origin问题/　　作者: Birkhoff" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/03/25/大型网站技术架构梳理/">
+                    大型网站技术架构梳理
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/08/java问题整理/">
+                    Java问题整理
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "e91642e4d5004df8950befdf033100e6",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/03/25/大型网站技术架构梳理/" title="上一篇: 大型网站技术架构梳理">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/08/java问题整理/" title="下一篇: Java问题整理">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/11/多版本并发控制(MVCC)/">多版本并发控制(MVCC)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/09/缓存问题/">缓存问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/26/锁的性能和优化/">锁的性能和优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/一致性hash算法/">一致性hash算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/前端组件收集/">前端组件收集</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/用 Redis 模拟 session/">Redis 模拟 session</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/springmvc工作原理/">SpringMVC 工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/数据库三范式/">数据库三范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/大型网站技术架构梳理/">大型网站技术架构梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java问题整理/">Java问题整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/CAP理论/">CAP理论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/安装配置RabbitMq/">安装配置RabbitMq</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/guide/">git - 简明指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/最新Google hosts 持续更新/">最新Google hosts 持续更新</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/request_message/">HTTP请求报文解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/约定大于配置/">约定大于配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/maven使用总结/">maven使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/16/升级eclipse/">升级eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/09/PKIX path building failed的问题/">PKIX path building failed的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/线程安全性/">servlet 计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/Java虚拟机内存模型/">Java虚拟机内存模型</a></li></ul>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 Birkhoff
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

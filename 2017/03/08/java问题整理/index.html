@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Birkhoff" />
+
+
+
+<meta name="description" content="java基础Arrays.sort实现原理和Collection实现原理foreach和while的区别(编译之后)线程池的种类，区别和使用场景分析线程池的实现原理和线程的调度过程线程池如何调优线程池的最大线程数目根据什么确定动态代理的几种方式HashMap的并发问题了解LinkedHashMap的应用吗反射的原理，反射创建类实例的三种方式是什么？cloneable接口实现原理，浅拷贝or深拷贝J">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java问题整理">
+<meta property="og:url" content="https://lostingz.github.io/2017/03/08/java问题整理/index.html">
+<meta property="og:site_name" content="Birkhoff&#39;s Blog">
+<meta property="og:description" content="java基础Arrays.sort实现原理和Collection实现原理foreach和while的区别(编译之后)线程池的种类，区别和使用场景分析线程池的实现原理和线程的调度过程线程池如何调优线程池的最大线程数目根据什么确定动态代理的几种方式HashMap的并发问题了解LinkedHashMap的应用吗反射的原理，反射创建类实例的三种方式是什么？cloneable接口实现原理，浅拷贝or深拷贝J">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-14T08:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java问题整理">
+<meta name="twitter:description" content="java基础Arrays.sort实现原理和Collection实现原理foreach和while的区别(编译之后)线程池的种类，区别和使用场景分析线程池的实现原理和线程的调度过程线程池如何调优线程池的最大线程数目根据什么确定动态代理的几种方式HashMap的并发问题了解LinkedHashMap的应用吗反射的原理，反射创建类实例的三种方式是什么？cloneable接口实现原理，浅拷贝or深拷贝J">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Birkhoff&#39;s Blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Java问题整理 | Birkhoff&#39;s Blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: 
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58f0318347967cae"></script>
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Birkhoff</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">纯粹，才是最强大的力量</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSS/">CSS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Session/">Session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lock/">lock</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/多线程/">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/科学上网/">科学上网</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线程安全/">线程安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://github.com/lostingz">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">true</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Birkhoff</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Birkhoff</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">纯粹，才是最强大的力量</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-java问题整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/08/java问题整理/" class="article-date">
+      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java问题整理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="java基础"><a href="#java基础" class="headerlink" title="java基础"></a>java基础</h2><p>Arrays.sort实现原理和Collection实现原理<br>foreach和while的区别(编译之后)<br>线程池的种类，区别和使用场景<br>分析线程池的实现原理和线程的调度过程<br>线程池如何调优<br>线程池的最大线程数目根据什么确定<br>动态代理的几种方式<br>HashMap的并发问题<br>了解LinkedHashMap的应用吗<br>反射的原理，反射创建类实例的三种方式是什么？<br>cloneable接口实现原理，浅拷贝or深拷贝<br>Java NIO使用<br>hashtable和hashmap的区别及实现原理，hashmap会问到数组索引，hash碰撞怎么解决<br>arraylist和linkedlist区别及实现原理<br>反射中，Class.forName和ClassLoader区别<br>String，Stringbuffer，StringBuilder的区别？<br>有没有可能2个不相等的对象有相同的hashcode<br>简述NIO的最佳实践，比如netty，mina<br>TreeMap的实现原理   </p>
+<h3 id="JVM相关"><a href="#JVM相关" class="headerlink" title="JVM相关"></a>JVM相关</h3><p>类的实例化顺序，比如父类静态数据，构造函数，字段，子类静态数据，构造函数，字段，他们的执行顺序<br>JVM内存分代<br>Java 8的内存分代改进<br>JVM垃圾回收机制，何时触发MinorGC等操作<br>jvm中一次完整的GC流程（从ygc到fgc）是怎样的，重点讲讲对象如何晋升到老年代，几种主要的jvm参数等<br>你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms，g1<br>新生代和老生代的内存回收策略<br>Eden和Survivor的比例分配等<br>深入分析了Classloader，双亲委派机制<br>JVM的编译优化<br>对Java内存模型的理解，以及其在并发中的应用<br>指令重排序，内存栅栏等<br>OOM错误，stackoverflow错误，permgen space错误<br>JVM常用参数<br>tomcat结构，类加载器流程<br>volatile的语义，它修饰的变量一定线程安全吗<br>g1和cms区别,吞吐量优先和响应优先的垃圾收集器选择<br>说一说你对环境变量classpath的理解？如果一个类不在classpath下，为什么会抛出ClassNotFoundException异常，如果在不改变这个类路径的前期下，怎样才能正确加载这个类？<br>说一下强引用、软引用、弱引用、虚引用以及他们之间和gc的关系      </p>
+<h3 id="JUC-并发相关"><a href="#JUC-并发相关" class="headerlink" title="JUC/并发相关"></a>JUC/并发相关</h3><p>ThreadLocal用过么，原理是什么，用的时候要注意什么<br>Synchronized和Lock的区别<br>synchronized 的原理，什么是自旋锁，偏向锁，轻量级锁，什么叫可重入锁，什么叫公平锁和非公平锁<br>concurrenthashmap具体实现及其原理，jdk8下的改版<br>用过哪些原子类，他们的参数以及原理是什么<br>cas是什么，他会产生什么问题（ABA问题的解决，如加入修改次数、版本号）<br>如果让你实现一个并发安全的链表，你会怎么做<br>简述ConcurrentLinkedQueue和LinkedBlockingQueue的用处和不同之处<br>简述AQS的实现原理<br>countdowlatch和cyclicbarrier的用法，以及相互之间的差别?<br>concurrent包中使用过哪些类？分别说说使用在什么场景？为什么要使用？<br>LockSupport工具<br>Condition接口及其实现原理<br>Fork/Join框架的理解<br>jdk8的parallelStream的理解<br>分段锁的原理,锁力度减小的思考    </p>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p>Spring AOP与IOC的实现原理<br>Spring的beanFactory和factoryBean的区别<br>为什么CGlib方式可以对接口实现代理？<br>RMI与代理模式<br>Spring的事务隔离级别，实现原理<br>对Spring的理解，非单例注入的原理？它的生命周期？循环注入的原理，aop的实现原理，说说aop中的几个术语，它们是怎么相互工作的？<br>Mybatis的底层实现原理<br>MVC框架原理，他们都是怎么做url路由的<br>spring boot特性，优势，适用场景等<br>quartz和timer对比<br>spring的controller是单例还是多例，怎么保证并发的安全   </p>
+<h2 id="分布式相关"><a href="#分布式相关" class="headerlink" title="分布式相关"></a>分布式相关</h2><p>Dubbo的底层实现原理和机制<br>描述一个服务从发布到被消费的详细过程<br>分布式系统怎么做服务治理<br>接口的幂等性的概念<br>消息中间件如何解决消息丢失问题<br>Dubbo的服务请求失败怎么处理<br>重连机制会不会造成错误<br>对分布式事务的理解<br>如何实现负载均衡，有哪些算法可以实现？<br>Zookeeper的用途，选举的原理是什么？<br>数据的垂直拆分水平拆分。<br>zookeeper原理和适用场景<br>zookeeper watch机制<br>redis/zk节点宕机如何处理<br>分布式集群下如何做到唯一序列号<br>如何做一个分布式锁<br>用过哪些MQ，怎么用的，和其他mq比较有什么优缺点，MQ的连接是线程安全的吗<br>MQ系统的数据如何保证不丢失<br>列举出你能想到的数据库分库分表策略；分库分表后，如何解决全表查询的问题。   </p>
+<h2 id="算法-amp-数据结构-amp-设计模式"><a href="#算法-amp-数据结构-amp-设计模式" class="headerlink" title="算法&amp;数据结构&amp;设计模式"></a>算法&amp;数据结构&amp;设计模式</h2><p>海量url去重类问题（布隆过滤器）<br>数组和链表数据结构描述，各自的时间复杂度<br>二叉树遍历<br>快速排序<br>BTree相关的操作<br>在工作中遇到过哪些设计模式，是如何应用的<br>hash算法的有哪几种，优缺点，使用场景<br>什么是一致性hash<br>paxos算法<br>在装饰器模式和代理模式之间，你如何抉择，请结合自身实际情况聊聊<br>代码重构的步骤和原因，如果理解重构到模式？   </p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><p>MySQL InnoDB存储的文件结构<br>索引树是如何维护的？<br>数据库自增主键可能的问题<br>MySQL的几种优化<br>mysql索引为什么使用B+树<br>数据库锁表的相关处理<br>索引失效场景<br>高并发下如何做到安全的修改同一行数据，乐观锁和悲观锁是什么，INNODB的行级锁有哪2种，解释其含义<br>数据库会死锁吗，举一个死锁的例子，mysql怎么解决死锁     </p>
+<h2 id="Redis-amp-缓存相关"><a href="#Redis-amp-缓存相关" class="headerlink" title="Redis&amp;缓存相关"></a>Redis&amp;缓存相关</h2><p>Redis的并发竞争问题如何解决了解Redis事务的CAS操作吗<br>缓存机器增删如何对系统影响最小，一致性哈希的实现<br>Redis持久化的几种方式，优缺点是什么，怎么实现的<br>Redis的缓存失效策略<br>缓存穿透的解决办法<br>redis集群，高可用，原理<br>mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据<br>用Redis和任意语言实现一段恶意登录保护的代码，限制1小时内每用户Id最多只能登录5次<br>redis的数据淘汰策略   </p>
+<h2 id="网络相关"><a href="#网络相关" class="headerlink" title="网络相关"></a>网络相关</h2><p>http1.0和http1.1有什么区别<br>TCP/IP协议<br>TCP三次握手和四次挥手的流程，为什么断开连接要4次,如果握手只有两次，会出现什么<br>TIME_WAIT和CLOSE_WAIT的区别<br>说说你知道的几种HTTP响应码<br>当你用浏览器打开一个链接的时候，计算机做了哪些工作步骤<br>TCP/IP如何保证可靠性，数据包有哪些数据组成<br>长连接与短连接<br>Http请求get和post的区别以及数据包格式<br>简述tcp建立连接3次握手，和断开连接4次握手的过程；关闭连接时，出现TIMEWAIT过多是由什么原因引起，是出现在主动断开方还是被动断开方。    </p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>maven解决依赖冲突,快照版和发行版的区别<br>Linux下IO模型有几种，各自的含义是什么<br>实际场景问题，海量登录日志如何排序和处理SQL操作，主要是索引和聚合函数的应用<br>实际场景问题解决，典型的TOP K问题<br>线上bug处理流程<br>如何从线上日志发现问题<br>linux利用哪些命令，查找哪里出了问题（例如io密集任务，cpu过度）<br>场景问题，有一个第三方接口，有很多个线程去调用获取数据，现在规定每秒钟最多有10个线程同时调用它，如何做到。<br>用三个线程按顺序循环打印abc三个字母，比如abcabcabc。<br>常见的缓存策略有哪些，你们项目中用到了什么缓存系统，如何设计的<br>设计一个秒杀系统，30分钟没付款就自动关闭交易（并发会很高）<br>请列出你所了解的性能测试工具<br>后台系统怎么防止请求重复提交？<br>有多个相同的接口，我想客户端同时请求，然后只需要在第一个请求返回结果的时候返回给客户端     </p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/08/java问题整理/">Java问题整理</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Birkhoff</a></p>
+        <p><span>发布时间:</span>2017-03-08, 11:31:53</p>
+        <p><span>最后更新:</span>2017-12-14, 16:10:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/08/java问题整理/" title="Java问题整理">https://lostingz.github.io/2017/03/08/java问题整理/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://lostingz.github.io/2017/03/08/java问题整理/　　作者: Birkhoff" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/03/10/HEAD DETACHED push origin问题/">
+                    HEAD DETACHED push origin失败
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/08/CAP理论/">
+                    CAP理论
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java基础"><span class="toc-number">1.</span> <span class="toc-text"><a href="#java&#x57FA;&#x7840;" class="headerlink" title="java&#x57FA;&#x7840;"></a>java&#x57FA;&#x7840;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM相关"><span class="toc-number">1.1.</span> <span class="toc-text"><a href="#JVM&#x76F8;&#x5173;" class="headerlink" title="JVM&#x76F8;&#x5173;"></a>JVM&#x76F8;&#x5173;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JUC-并发相关"><span class="toc-number">1.2.</span> <span class="toc-text"><a href="#JUC-&#x5E76;&#x53D1;&#x76F8;&#x5173;" class="headerlink" title="JUC/&#x5E76;&#x53D1;&#x76F8;&#x5173;"></a>JUC/&#x5E76;&#x53D1;&#x76F8;&#x5173;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring"><span class="toc-number">2.</span> <span class="toc-text"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式相关"><span class="toc-number">3.</span> <span class="toc-text"><a href="#&#x5206;&#x5E03;&#x5F0F;&#x76F8;&#x5173;" class="headerlink" title="&#x5206;&#x5E03;&#x5F0F;&#x76F8;&#x5173;"></a>&#x5206;&#x5E03;&#x5F0F;&#x76F8;&#x5173;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#算法-amp-数据结构-amp-设计模式"><span class="toc-number">4.</span> <span class="toc-text"><a href="#&#x7B97;&#x6CD5;-amp-&#x6570;&#x636E;&#x7ED3;&#x6784;-amp-&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;" class="headerlink" title="&#x7B97;&#x6CD5;&amp;&#x6570;&#x636E;&#x7ED3;&#x6784;&amp;&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;"></a>&#x7B97;&#x6CD5;&amp;&#x6570;&#x636E;&#x7ED3;&#x6784;&amp;&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库"><span class="toc-number">5.</span> <span class="toc-text"><a href="#&#x6570;&#x636E;&#x5E93;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;"></a>&#x6570;&#x636E;&#x5E93;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-amp-缓存相关"><span class="toc-number">6.</span> <span class="toc-text"><a href="#Redis-amp-&#x7F13;&#x5B58;&#x76F8;&#x5173;" class="headerlink" title="Redis&amp;&#x7F13;&#x5B58;&#x76F8;&#x5173;"></a>Redis&amp;&#x7F13;&#x5B58;&#x76F8;&#x5173;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#网络相关"><span class="toc-number">7.</span> <span class="toc-text"><a href="#&#x7F51;&#x7EDC;&#x76F8;&#x5173;" class="headerlink" title="&#x7F51;&#x7EDC;&#x76F8;&#x5173;"></a>&#x7F51;&#x7EDC;&#x76F8;&#x5173;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">8.</span> <span class="toc-text"><a href="#&#x5176;&#x4ED6;" class="headerlink" title="&#x5176;&#x4ED6;"></a>&#x5176;&#x4ED6;</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "e91642e4d5004df8950befdf033100e6",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/03/10/HEAD DETACHED push origin问题/" title="上一篇: HEAD DETACHED push origin失败">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/08/CAP理论/" title="下一篇: CAP理论">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/11/多版本并发控制(MVCC)/">多版本并发控制(MVCC)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/09/缓存问题/">缓存问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/26/锁的性能和优化/">锁的性能和优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/一致性hash算法/">一致性hash算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/前端组件收集/">前端组件收集</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/用 Redis 模拟 session/">Redis 模拟 session</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/springmvc工作原理/">SpringMVC 工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/数据库三范式/">数据库三范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/大型网站技术架构梳理/">大型网站技术架构梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java问题整理/">Java问题整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/CAP理论/">CAP理论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/安装配置RabbitMq/">安装配置RabbitMq</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/guide/">git - 简明指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/最新Google hosts 持续更新/">最新Google hosts 持续更新</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/request_message/">HTTP请求报文解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/约定大于配置/">约定大于配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/maven使用总结/">maven使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/16/升级eclipse/">升级eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/09/PKIX path building failed的问题/">PKIX path building failed的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/线程安全性/">servlet 计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/Java虚拟机内存模型/">Java虚拟机内存模型</a></li></ul>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 Birkhoff
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

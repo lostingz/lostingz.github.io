@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Birkhoff" />
+
+
+
+<meta name="description" content="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究　　Java与C++有一个不同之处在于，Java不但有构造函数，还有一个”初始化块“(Initialization Block)的概念。下面探究一下它的执行顺序与可能的用途。执行顺序 　　首先定义A, B, C三个类用作测试，其中B继承了A，C又继承了B，并分别给它们加上静态初始化块、非静态初始化块和构造函数，里面都是一句简单的输出。">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究">
+<meta property="og:url" content="https://lostingz.github.io/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/index.html">
+<meta property="og:site_name" content="Birkhoff&#39;s Blog">
+<meta property="og:description" content="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究　　Java与C++有一个不同之处在于，Java不但有构造函数，还有一个”初始化块“(Initialization Block)的概念。下面探究一下它的执行顺序与可能的用途。执行顺序 　　首先定义A, B, C三个类用作测试，其中B继承了A，C又继承了B，并分别给它们加上静态初始化块、非静态初始化块和构造函数，里面都是一句简单的输出。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-14T08:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究">
+<meta name="twitter:description" content="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究　　Java与C++有一个不同之处在于，Java不但有构造函数，还有一个”初始化块“(Initialization Block)的概念。下面探究一下它的执行顺序与可能的用途。执行顺序 　　首先定义A, B, C三个类用作测试，其中B继承了A，C又继承了B，并分别给它们加上静态初始化块、非静态初始化块和构造函数，里面都是一句简单的输出。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Birkhoff&#39;s Blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究 | Birkhoff&#39;s Blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: 
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58f0318347967cae"></script>
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Birkhoff</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">纯粹，才是最强大的力量</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSS/">CSS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memcached/">Memcached</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Session/">Session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash/">bash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/intellij-idea/">intellij idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lock/">lock</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式缓存/">分布式缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/多线程/">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/科学上网/">科学上网</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线程安全/">线程安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://github.com/lostingz">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">true</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Birkhoff</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Birkhoff</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">纯粹，才是最强大的力量</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:zgmqxj012@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lostingz" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/birkhoff" title="博客园"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-Java的初始化块静态初始化块构造函数的执行顺序及用途探究" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/" class="article-date">
+      <time datetime="2017-03-08T03:31:53.000Z" itemprop="datePublished">2017-03-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究"><a href="#Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究" class="headerlink" title="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究"></a>Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</h2><p>　　Java与C++有一个不同之处在于，Java不但有构造函数，还有一个”初始化块“(Initialization Block)的概念。下面探究一下它的执行顺序与可能的用途。<br>执行顺序</p>
+<p>　　首先定义A, B, C三个类用作测试，其中B继承了A，C又继承了B，并分别给它们加上静态初始化块、非静态初始化块和构造函数，里面都是一句简单的输出。</p>
+<p>　　主类Main里面也如法炮制。</p>
+<pre><code>class A {
+    static {
+        System.out.println(&quot;Static init A.&quot;);
+    }
+
+    {
+        System.out.println(&quot;Instance init A.&quot;);
+    }
+
+    A() {
+        System.out.println(&quot;Constructor A.&quot;);
+    }
+}
+
+class B extends A {
+    static {
+        System.out.println(&quot;Static init B.&quot;);
+    }
+
+    {
+        System.out.println(&quot;Instance init B.&quot;);
+    }
+
+    B() {
+        System.out.println(&quot;Constructor B.&quot;);
+    }
+}
+
+class C extends B {
+
+    static {
+        System.out.println(&quot;Static init C.&quot;);
+    }
+
+    {
+        System.out.println(&quot;Instance init C.&quot;);
+    }
+
+    C() {
+        System.out.println(&quot;Constructor C.&quot;);
+    }
+}
+
+public class Main {
+
+    static {
+        System.out.println(&quot;Static init Main.&quot;);
+    }
+
+    {
+        System.out.println(&quot;Instance init Main.&quot;);
+    }
+
+    public Main() {
+        System.out.println(&quot;Constructor Main.&quot;);
+    }
+
+    public static void main(String[] args) {
+        C c = new C();
+        //B b = new B();
+    }
+}
+</code></pre><p>测试代码</p>
+<p>　　当然这里不使用内部类，因为内部类不能使用静态的定义；而用静态内部类就失去了一般性。</p>
+<p>　　那么可以看到，当程序进入了main函数，并创建了一个类C的对象之后，输出是这样子的：</p>
+<pre><code>Static init Main.
+Static init A.
+Static init B.
+Static init C.
+Instance init A.
+Constructor A.
+Instance init B.
+Constructor B.
+Instance init C.
+Constructor C.
+</code></pre><p>　　观察上面的输出，可以观察到两个有趣的现象：</p>
+<pre><code>Main类是肯定没有被实例化过的，但是由于执行main入口函数用到了Main类，于是static初始化块也被执行了；
+所有的静态初始化块都优先执行，其次才是非静态的初始化块和构造函数，它们的执行顺序是：
+    父类的静态初始化块
+    子类的静态初始化块
+    父类的初始化块
+    父类的构造函数
+    子类的初始化块
+    子类的构造函数
+</code></pre><p>　　那么如果有多个实例化对象，又会不会发生变化呢？于是在第一个C类的对象后面，再实例化一个B类的对象，再观察输出：</p>
+<pre><code>Static init Main.
+Static init A.
+Static init B.
+Static init C.
+Instance init A.
+Constructor A.
+Instance init B.
+Constructor B.
+Instance init C.
+Constructor C.
+Instance init A.
+Constructor A.
+Instance init B.
+Constructor B.
+</code></pre><p>　　可以发现这输出跟前面的基本长得一样对吧？只是在后面多了4行，那是新的B类对象实例化时产生的信息，同样也是父类A的初始化块和构造函数先执行，再轮到子类B的初始化块和构造函数执行；同时还发现，静态初始化块的输出只出现了一次，也就是说每个类的静态初始化块都只在第一次实例化该类对象时执行一次。</p>
+<p>　　无论如何，初始化块和构造函数总在一起执行是件有趣的事情，让我们反编译一下看看吧！</p>
+<p>　　查看生成目录发现已经生成了4个.class文件，分别是A.class, B.class, C.class, Main.class，先看看Main.class的结构（这里重新注释了new B）：</p>
+<p>1 javap -c Main</p>
+<pre><code>Compiled from &quot;Main.java&quot;
+public class Main {
+  public Main();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V
+       4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       7: ldc           #3                  // String Instance init Main.
+       9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      12: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+      15: ldc           #5                  // String Constructor Main.
+      17: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      20: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: new           #6                  // class C
+       3: dup
+       4: invokespecial #7                  // Method C.&quot;&lt;init&gt;&quot;:()V
+       7: astore_1
+       8: return
+
+  static {};
+    Code:
+       0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: ldc           #8                  // String Static init Main.
+       5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       8: return
+}
+</code></pre><p>Main.class的反编译结果</p>
+<p>　　可以看到整个Main类被分成三个部分，static {}部分很显然，就是我们的static初始化块，在里面调用了println并输出了String“Static init Main.”；而main入口函数也很清晰，首先新实例化了一个类C的对象，然后调用了类C的构造函数，最后返回；而上面public Main();的部分就很有意思了，这是类Main的构造函数，但我们看到里面调用了两次println，分别输出了String“Instance init Main.”和String“Constructor Main.”。难道初始化块和构造函数被合并到一起了？</p>
+<p>　　我们再看看C类的反编译结果吧：</p>
+<p>1 javap -c C</p>
+<pre><code>Compiled from &quot;Main.java&quot;
+class C extends B {
+  C();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method B.&quot;&lt;init&gt;&quot;:()V
+       4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       7: ldc           #3                  // String Instance init C.
+       9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      12: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+      15: ldc           #5                  // String Constructor C.
+      17: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      20: return
+
+  static {};
+    Code:
+       0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: ldc           #6                  // String Static init C.
+       5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       8: return
+}
+</code></pre><p>C.class的反编译结果</p>
+<p>　　静态初始化块仍然单独分出一部分，输出了我们的调试语句。而另一部分，仍然还是类C的构造函数C();，可以看到它先调用了父类B的构造函数，接着输出了我们初始化块中的语句，然后才输出我们写在构造函数中的语句，最后返回。多次试验也都是如此。于是我们能够推断：初始化块的代码是被加入到子类构造函数的前面，父类初始化的后面了。</p>
+<p>可能的用途：</p>
+<p>　　既然执行顺序和大概原理都摸清了，那么就要探讨一下初始化块的可能的用途。<br>　静态初始化块</p>
+<h3 id="1-用于初始化静态成员变量"><a href="#1-用于初始化静态成员变量" class="headerlink" title="1.用于初始化静态成员变量"></a>1.用于初始化静态成员变量</h3><p>　　比如给类C增加一个静态成员变量sub，我们在static块里面给它赋值为5：<br>    class C extends B {</p>
+<pre><code>    static public int a;
+
+    static {
+        a = 5;
+        System.out.println(&quot;Static init C.&quot;);
+    }
+
+......
+
+}
+</code></pre><p>　　main函数里输出这个静态变量C.sub：</p>
+<pre><code>public static void main(String[] args) {
+    System.out.println(&quot;Value of C.sub: &quot; + C.sub);
+}
+</code></pre><p>　　则输出结果：</p>
+<pre><code>Static init Main.
+Static init A.
+Static init B.
+Static init C.
+Value of C.sub: 5
+</code></pre><p>　　符合类被第一次加载时执行静态初始化块的结论，且C.sub被正确赋值为5并输出了出来。</p>
+<p>　　但是乍一看似乎没有什么用，因为静态成员变量在定义时就可以顺便赋值了。因此在赋值方面有点鸡肋。</p>
+<h3 id="2-执行初始化代码"><a href="#2-执行初始化代码" class="headerlink" title="2.  执行初始化代码"></a>2.  执行初始化代码</h3><p>　　比如可以记录第一次访问类的日志，或方便单例模式的初始化等。对于单例模式，可以先用static块初始化一些可能还被其他类访问的基础参数，等到真正需要加载大量资源的时候(getInstance)再构造单体，在构造函数中加载资源。</p>
+<h4 id="非静态初始化块"><a href="#非静态初始化块" class="headerlink" title="非静态初始化块"></a>非静态初始化块</h4><p>　　这个就没什么好说的了，基本跟构造函数一个功能，但比构造函数先执行。最常见的用法应该还是代码复用，即多个重载构造函数都有若干段相同的代码，那么可以把这些重复的代码拉出来放到初始化块中，但仍然要注意它的执行顺序，对顺序有严格要求的初始化代码就不适合使用了。</p>
+<p>总结： </p>
+<pre><code>静态初始化块的优先级最高，也就是最先执行，并且仅在类第一次被加载时执行；
+非静态初始化块和构造函数后执行，并且在每次生成对象时执行一次；
+非静态初始化块的代码会在类构造函数之前执行。因此若要使用，应当养成把初始化块写在构造函数之前的习惯，便于调试；
+静态初始化块既可以用于初始化静态成员变量，也可以执行初始化代码；
+非静态初始化块可以针对多个重载构造函数进行代码复用。
+</code></pre>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Birkhoff</a></p>
+        <p><span>发布时间:</span>2017-03-08, 11:31:53</p>
+        <p><span>最后更新:</span>2017-12-14, 16:10:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/" title="Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究">https://lostingz.github.io/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://lostingz.github.io/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/　　作者: Birkhoff" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">
+                    intellij idea创建maven项目更新中央仓库archetype元数据太慢
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/06/安装配置RabbitMq/">
+                    安装配置RabbitMq
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究"><span class="toc-number">1.</span> <span class="toc-text"><a href="#Java&#x7684;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x6784;&#x9020;&#x51FD;&#x6570;&#x7684;&#x6267;&#x884C;&#x987A;&#x5E8F;&#x53CA;&#x7528;&#x9014;&#x63A2;&#x7A76;" class="headerlink" title="Java&#x7684;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x6784;&#x9020;&#x51FD;&#x6570;&#x7684;&#x6267;&#x884C;&#x987A;&#x5E8F;&#x53CA;&#x7528;&#x9014;&#x63A2;&#x7A76;"></a>Java&#x7684;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;&#x3001;&#x6784;&#x9020;&#x51FD;&#x6570;&#x7684;&#x6267;&#x884C;&#x987A;&#x5E8F;&#x53CA;&#x7528;&#x9014;&#x63A2;&#x7A76;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-用于初始化静态成员变量"><span class="toc-number">1.1.</span> <span class="toc-text"><a href="#1-&#x7528;&#x4E8E;&#x521D;&#x59CB;&#x5316;&#x9759;&#x6001;&#x6210;&#x5458;&#x53D8;&#x91CF;" class="headerlink" title="1.&#x7528;&#x4E8E;&#x521D;&#x59CB;&#x5316;&#x9759;&#x6001;&#x6210;&#x5458;&#x53D8;&#x91CF;"></a>1.&#x7528;&#x4E8E;&#x521D;&#x59CB;&#x5316;&#x9759;&#x6001;&#x6210;&#x5458;&#x53D8;&#x91CF;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-执行初始化代码"><span class="toc-number">1.2.</span> <span class="toc-text"><a href="#2-&#x6267;&#x884C;&#x521D;&#x59CB;&#x5316;&#x4EE3;&#x7801;" class="headerlink" title="2.  &#x6267;&#x884C;&#x521D;&#x59CB;&#x5316;&#x4EE3;&#x7801;"></a>2.  &#x6267;&#x884C;&#x521D;&#x59CB;&#x5316;&#x4EE3;&#x7801;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#非静态初始化块"><span class="toc-number">1.2.1.</span> <span class="toc-text"><a href="#&#x975E;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;" class="headerlink" title="&#x975E;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;"></a>&#x975E;&#x9759;&#x6001;&#x521D;&#x59CB;&#x5316;&#x5757;</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "e91642e4d5004df8950befdf033100e6",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/" title="上一篇: intellij idea创建maven项目更新中央仓库archetype元数据太慢">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/06/安装配置RabbitMq/" title="下一篇: 安装配置RabbitMq">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/11/多版本并发控制(MVCC)/">多版本并发控制(MVCC)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/09/缓存问题/">缓存问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/26/锁的性能和优化/">锁的性能和优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/一致性hash算法/">一致性hash算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/Memcached多线程与Redis单线程/">Memcached多线程与Redis单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/前端组件收集/">前端组件收集</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/用 Redis 模拟 session/">Redis 模拟 session</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/atomic,synchronization and volatile/">atomic, synchronization and volatile</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/springmvc工作原理/">SpringMVC 工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/数据库三范式/">数据库三范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/大型网站技术架构梳理/">大型网站技术架构梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/HEAD DETACHED push origin问题/">HEAD DETACHED push origin失败</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java问题整理/">Java问题整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/CAP理论/">CAP理论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/理解HTTP幂等性/">HTTP幂等性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/java foreach的实现方式/">java foreach实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/intellij idea创建maven项目更新中央仓库archetype元数据太慢/">intellij idea创建maven项目更新中央仓库archetype元数据太慢</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/Java的初始化块静态初始化块构造函数的执行顺序及用途探究/">Java的初始化块、静态初始化块、构造函数的执行顺序及用途探究</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/安装配置RabbitMq/">安装配置RabbitMq</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/13/监控服务器Java异常脚本/">监控服务器Java异常脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/guide/">git - 简明指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/最新Google hosts 持续更新/">最新Google hosts 持续更新</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/request_message/">HTTP请求报文解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/约定大于配置/">约定大于配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/maven使用总结/">maven使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/16/升级eclipse/">升级eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/09/PKIX path building failed的问题/">PKIX path building failed的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/线程安全性/">servlet 计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/26/Java虚拟机内存模型/">Java虚拟机内存模型</a></li></ul>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 Birkhoff
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
